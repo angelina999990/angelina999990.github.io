@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title><![CDATA[Angelina's Blog]]></title>
+  
+  <link href="/atom.xml" rel="self"/>
+  <link href="http://yoursite.com/"/>
+  <updated>2015-05-02T16:30:17.000Z</updated>
+  <id>http://yoursite.com/</id>
+  
+  <author>
+    <name><![CDATA[Angelina ZX]]></name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[setup Macbook]]></title>
+    <link href="http://yoursite.com/2015/05/02/setup-Macbook/"/>
+    <id>http://yoursite.com/2015/05/02/setup-Macbook/</id>
+    <published>2015-05-02T15:35:56.000Z</published>
+    <updated>2015-05-02T16:30:17.000Z</updated>
+    <content type="html"><![CDATA[<blockquote>
+<p>工欲善其事，必先利其器</p>
+</blockquote>
+<p>折腾了两天，终于把新到手的Macbook 各种配置好！ 中间遇到的问题不是一般两般的多，谁叫我食新手呢！！！</p>
+<a id="more"></a>
+<h2 id="开发">开发</h2><p>最开始的开始，当然是xcode了，很多安装都需要xcode ready first。</p>
+<ul>
+<li><p>Homebrew： 很好用的包管理工具，后期安装一些应用、插件之类的很方便。</p>
+</li>
+<li><p>Iterm2 \＋ zsh: 我的最爱，强大多终端。<br><img src="https://iterm2.com/img/screenshots/split_panes_full.png" alt="Iterm2"><br>新手看起来瞬间高大上有木有～</p>
+</li>
+<li><p>Git： 她的美不言而喻。</p>
+</li>
+<li><p>Node.js： 有好多东西要学，先抓node。</p>
+</li>
+<li><p>NPM： Node的包管理系统，安装很方便～</p>
+<ul>
+<li><p>gulp： npm安装包。</p>
+</li>
+<li><p>bower： 另一个包管理工具，不要问我为什么那么多包管理工具～</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="设计">设计</h2><p>Mac怎么能没有设计软件来配成。</p>
+<ul>
+<li><p>Adobe Photoshop CC</p>
+</li>
+<li><p>Adobe Lightroom (optional)</p>
+</li>
+<li><p>Adobe Illustrator (optional)</p>
+</li>
+<li><p>Sketch (optional)</p>
+</li>
+</ul>
+<h2 id="网络">网络</h2><p>最后当然少不了穿越，你们懂得～</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<blockquote>
+<p>工欲善其事，必先利其器</p>
+</blockquote>
+<p>折腾了两天，终于把新到手的Macbook 各种配置好！ 中间遇到的问题不是一般两般的多，谁叫我食新手呢！！！</p>]]>
+    
+    </summary>
+    
+  </entry>
+  
+  <entry>
+    <title><![CDATA[Hello World]]></title>
+    <link href="http://yoursite.com/2015/05/02/hello-world/"/>
+    <id>http://yoursite.com/2015/05/02/hello-world/</id>
+    <published>2015-05-02T10:42:31.000Z</published>
+    <updated>2015-05-02T10:42:31.000Z</updated>
+    <content type="html"><![CDATA[<p>Welcome to <a href="http://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="http://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="http://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
+<h2 id="Quick_Start">Quick Start</h2><h3 id="Create_a_new_post">Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
+<p>More info: <a href="http://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
+<h3 id="Run_server">Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="http://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
+<a id="more"></a>
+<h3 id="Generate_static_files">Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="http://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
+<h3 id="Deploy_to_remote_sites">Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="http://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>Welcome to <a href="http://hexo.io/">Hexo</a>! This is your very first post. Check <a href="http://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="http://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
+<h2 id="Quick_Start">Quick Start</h2><h3 id="Create_a_new_post">Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
+<p>More info: <a href="http://hexo.io/docs/writing.html">Writing</a></p>
+<h3 id="Run_server">Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="http://hexo.io/docs/server.html">Server</a></p>]]>
+    
+    </summary>
+    
+  </entry>
+  
+</feed>
