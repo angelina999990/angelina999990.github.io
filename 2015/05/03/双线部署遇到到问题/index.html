@@ -18,7 +18,7 @@
 
 
 
-  <meta name="keywords" content="Mac,front-end," />
+  <meta name="keywords" content="issue,tech," />
 
 
 
@@ -31,7 +31,7 @@
 
 
 
-  <title> setup Macbook // Angelina's Blog </title>
+  <title> 双线部署遇到到问题 // Angelina's Blog </title>
 </head>
 
 <body>
@@ -102,7 +102,7 @@
           
           
             
-              setup Macbook
+              双线部署遇到到问题
             
           
         </h1>
@@ -110,7 +110,7 @@
 
       <div class="post-meta">
         <span class="post-time">
-          Posted on 2015-05-02
+          Posted on 2015-05-03
         </span>
 
         
@@ -127,42 +127,40 @@
       
 
       
-        <blockquote>
-<p>工欲善其事，必先利其器</p>
-</blockquote>
-<p>折腾了两天，终于把新到手的Macbook 各种配置好！ 中间遇到的问题不是一般两般的多，谁叫我是新手呢！！！</p>
+        <p>本来博客是放在github上面，但是由于国内网络环境（大家懂的），github访问不是很稳定，随时被查水表。所以采取网友的建议，在gitcafe也部署一个。gifcafe是国内的，速度杠杠的～</p>
+<p>这样国内访问走gitcafe，国外访问走github，再做个dnspod双线解析就大功告成。</p>
+<p>下面纪录重新双线部署过程中遇到的问题，作学习之用。</p>
 <a id="more"></a>
-<h2 id="开发">开发</h2><p>最开始的开始，当然是xcode了，很多安装都需要xcode ready first。</p>
-<ul>
-<li><p>Homebrew： 很好用的包管理工具，后期安装一些应用、插件之类的很方便。</p>
-</li>
-<li><p>Iterm2 \＋ zsh: 我的最爱，强大的终端。<br><img src="https://iterm2.com/img/screenshots/split_panes_full.png" alt="Iterm2"><br>新手看起来瞬间高大上有木有～</p>
-</li>
-<li><p>Git： 她的美不言而喻。</p>
-</li>
-<li><p>Node.js： 有好多东西要学，先抓node。</p>
-</li>
-<li><p>NPM： Node的包管理系统，安装很方便～</p>
-<ul>
-<li><p>gulp： npm安装包。</p>
-</li>
-<li><p>bower： 另一个包管理工具，不要问我为什么那么多包管理工具～</p>
-</li>
+<p>hexo部署单个平台没有问题，但是添加一个gitcafe，再deploy就报错了。</p>
+<blockquote>
+<p>deploy:<br>- type: git<br>  repository: github url<br>  branch: master<br>- type: git<br>  repository: gitcafe url<br>  branch: gitcafe-pages</p>
+</blockquote>
+<p>github可以正常deploy，gitcafe报错：permission denied。 我想应该是生成的ssh key出了问题。</p>
+<p>这里简单说一下ssh key， 为了避免没错连接到github或gitcafe都要输入密码，可以用邮件地址在本地生成id_rsa 和 id_rsa.pub，前者是私钥自己保存，后者是公钥需要添加到github和gitcafe，这样就不用每次连接都输入密码做身份验证了。关于ssh key的生成请戳<a href="https://help.github.com/articles/generating-ssh-keys/" target="_blank" rel="external">这里</a>。</p>
+<p>我之前是针对github和gitcafe分别生成了id_rsa,id_rsa.pub和cafe_rsa和cafe_rsa.pub。</p>
+<p>但是问题来了，这么多私钥ssh不知道应该用哪一个。其实~/.ssh/id_rsa是基本私钥，ssh总是把它当作提交私钥的首选项。但是如果存在其他的私钥，就需要向ssh提及，好像登记样，并且配置~/.ssh下config文件来指定不同host应该使用的私钥文件。具体看下面：</p>
+<pre><code>ssh-<span class="keyword">add</span> ~/.ssh/cafe_rsa
+</code></pre><p>检查是否添加成功：</p>
+<pre><code>ssh-<span class="keyword">add</span> -l
+</code></pre><p>如果是这样就成功了：</p>
+<blockquote>
+<p>2048 dc:0f:0d:5b:…:a0:0b:a7:d3:62:a6:bc:bc /Users/username/.ssh/id_rsa (RSA)<br>2048 d8:2c:1c:25:…:56:14:c7:79:7e:20:43:20 /Users/username/.ssh/cafe_rsa (RSA)</p>
+</blockquote>
+<p>config文件的配置：</p>
+<blockquote>
+<p>Host username.github.com<br>HostName github.com<br>User git<br>IdentityFile ~/.ssh/id_rsa</p>
+<p>Host username.gitcafe.com<br>HostName gitcafe.com<br>User git<br>IdentityFile ~/.ssh/cafe_rsa</p>
+</blockquote>
+<p>同理，如果是一个平台有多个用户，只需要添加相同的项并修改Host的username就行了～</p>
+<p>但是我想同时生成那么多key也不是很方便，所以取消了cafe_rsa,直接把id_rsa.pub作为github和gitcafe的ssh key。这样两个平台就公用一个本地私钥。也不用再去设置什么config文件。需要注意的是，生成密钥的邮箱和我github，gitcafe的邮箱是一样的。</p>
+<p>再修改一下hexo的_config.yml文件：</p>
+<blockquote>
+<p>deploy:<br> type: git<br> repository:<br>   github: git@username.github.com:username/username.github.io.git,[branch]<br>   gitcafe: git@username.gitcafe.com:username/username.git,[branch]</p>
+</blockquote>
+<p>这下就可以同时对两个平台进行部署，尽情发布了～</p>
+<h6 id="参考资料">参考资料</h6><ul>
+<li><a href="http://wshuyi.github.io/2014/08/22/hexoGithubGitCafe20140822/" target="_blank" rel="external">在github和gitcafe上同时部署hexo博客</a></li>
 </ul>
-</li>
-</ul>
-<h2 id="设计">设计</h2><p>Mac怎么能没有设计软件来配成。</p>
-<ul>
-<li><p>Adobe Photoshop CC</p>
-</li>
-<li><p>Adobe Lightroom (optional)</p>
-</li>
-<li><p>Adobe Illustrator (optional)</p>
-</li>
-<li><p>Sketch (optional)</p>
-</li>
-</ul>
-<h2 id="网络">网络</h2><p>最后当然少不了穿越，你们懂得～</p>
 
       
     </div>
@@ -171,9 +169,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Mac/"> #Mac </a>
+            <a href="/tags/issue/"> #issue </a>
           
-            <a href="/tags/front-end/"> #front-end </a>
+            <a href="/tags/tech/"> #tech </a>
           
         </div>
       
@@ -182,11 +180,11 @@
         <div class="post-nav">
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2015/05/03/双线部署遇到到问题/">双线部署遇到到问题</a>
-            
           </div>
 
           <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/05/02/setup-Macbook/">setup Macbook</a>
             
           </div>
         </div>
@@ -288,7 +286,7 @@
           <div class="post-toc">
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#开发"><span class="nav-number">1.</span> <span class="nav-text">开发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#设计"><span class="nav-number">2.</span> <span class="nav-text">设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#网络"><span class="nav-number">3.</span> <span class="nav-text">网络</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-6"><a class="nav-link" href="#参考资料"><span class="nav-number">1.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator"></div>
