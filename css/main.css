@@ -908,7 +908,7 @@ body {
   background: #222;
 }
 .header {
-  background: #fff;
+  background: #efefef;
 }
 .header-inner {
   position: relative;
@@ -1149,7 +1149,7 @@ input.menu-search-input {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #ffffe4;
+  background: #4999dd;
 }
 .sidebar-nav {
   margin: 0;
@@ -1908,4 +1908,22 @@ input.menu-search-input {
 .category-all-page .category-list-count:after {
   display: inline;
   content: ") ";
+}
+.brand {
+  color: #000;
+  background: transparent;
+  border-top: 2px solid #222;
+  border-bottom: 2px solid #222;
+}
+.site-title {
+  font-size: 30px;
+}
+@media (min-width: 768px) {
+  .site-meta {
+    float: left;
+  }
+  #menu {
+    float: right;
+    margin: 0;
+  }
 }
