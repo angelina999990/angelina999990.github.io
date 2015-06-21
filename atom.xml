@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2015-05-09T15:35:26.000Z</updated>
+  <updated>2015-06-21T16:05:37.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -13,6 +13,88 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[gulp学习初体验]]></title>
+    <link href="http://yoursite.com/2015/06/21/gulp%E5%AD%A6%E4%B9%A0%E5%88%9D%E4%BD%93%E9%AA%8C/"/>
+    <id>http://yoursite.com/2015/06/21/gulp学习初体验/</id>
+    <published>2015-06-21T13:02:53.000Z</published>
+    <updated>2015-06-21T16:05:37.000Z</updated>
+    <content type="html"><![CDATA[<p>花了一天的时间，把gulp的一些基本用法过了一遍。总算对其有了些了解。记录下学习中的不解，也算对这次的学习一个总结。</p>
+<p>首先介绍一下gulp，gulp是一个前端构建工具，利用它可以在项目开发过程中自动化执行任务。有赖于其强大的插件系统，我们可以利用gulp完成很多任务，例如执行JSHint，编译stylus，更新版本号等。</p>
+<a id="more"></a>
+<h2 id="安装gulp：">安装gulp：</h2><p>全局安装：</p>
+<pre><code>npm <span class="keyword">install</span> -g gulp
+</code></pre><p>项目安装：</p>
+<pre><code>npm install --<span class="built_in">save</span>-<span class="built_in">dev</span> gulp
+</code></pre><p>—save-dev 安装包将在开发环境下安装，版本信息写入package.json的devDependencies下。</p>
+<p>gulp任务都定义在gulpfile.js中，可以在终端运行gulp命令来执行。</p>
+<h2 id="gulp任务">gulp任务</h2><p>加载gulp模块</p>
+<pre><code><span class="reserved">var</span> gulp = <span class="built_in">require</span>(<span class="string">'gulp'</span>);
+</code></pre><p>其他gulp插件的加载也是一样。</p>
+<p>下面是一段编译stylus的gulp task代码，用来简单解释一下gulp的工作流程。</p>
+<pre><code>gulp.task(<span class="string">'stylus'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
+  gulp.src(<span class="string">'./assets/stylus/style.styl'</span>)
+      .pipe(stylus())
+      .pipe(gulp.dest(<span class="string">'./assets/stylesheets'</span>));
+});
+</code></pre><p>gulp.task(taskName, excutor)用来定义任务。需要任务名和执行函数两个参数。执行函数也可以是多个任务。</p>
+<p>gulp.task(‘build’, [‘task’, ‘anotherTask’]);</p>
+<p>但是这些任务不是顺序执行的。要保证一个任务先于另一个执行可以：</p>
+<pre><code>gulp.task(<span class="string">'taskTwo'</span>, [<span class="string">'taskOne'</span>], <span class="function"><span class="keyword">function</span> <span class="params">()</span> </span>{
+   <span class="comment">// taskTwo</span>
+});
+</code></pre><p>taskTwo 会在 taskOne执行完后再执行。</p>
+<p>gulp.src()函数用来匹配文件，创建一个对象流来代表这些文件，之后的操作都是以这些文件为对象进行操作。pipe顾名思义就是管道的意思， stylus()返回修改后的文件对象放入流中，这些输出的文件随着管道被输入到gulp.dest()函数中并保持下来。</p>
+<p>最后不要忘记在文件头部加载gulp-stylus模块。</p>
+<h2 id="运行gulp">运行gulp</h2><p>终端执行 <code>$ gulp</code> 会报错，因为gulp默认会执行default 任务。需要在gulpfile.js内定义此任务</p>
+<pre><code>gulp.task(<span class="string">'default'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
+  <span class="comment">//deal with default task</span>
+})
+</code></pre><p>如果要运行指定任务</p>
+<pre><code><span class="variable">$ </span>gulp taskName
+</code></pre><h2 id="watching_files">watching files</h2><p>用gulp来监听文件的修改状态非常方便。我们来定义一个watch任务看一下</p>
+<pre><code>gulp.task(<span class="string">'watch'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
+  gulp.watch(<span class="string">'./assets/stylus/*.styl'</span>, [<span class="string">'stylus'</span>]);
+});
+</code></pre><p>现在当改变styl文件时就会执行stylus任务。</p>
+<p>当然仅仅是watch是不够的，我们还希望在文件修改的同时浏览器能同步更新。browserSync插件就可以做到。当改变代码的时候，BrowserSync会重新加载页面，如果是css文件，会直接添加进css中，页面并不需要再次刷新。这样我们修改前端代码时就不需要每次都手动刷新浏览器。</p>
+<pre><code><span class="tag">gulp</span><span class="class">.task</span>(<span class="string">'browser-sync'</span>, <span class="function">function</span>(){
+  <span class="tag">browserSync</span><span class="class">.init</span>(null, {
+    <span class="attribute">proxy</span>: <span class="string">'http://localhost:3000'</span>,
+    <span class="attribute">files</span>: [<span class="string">'assets/stylesheets/*.css'</span>],
+    <span class="attribute">browser</span>: <span class="string">'google-chrome'</span>,
+    <span class="attribute">port</span>: <span class="number">7000</span>,
+    <span class="attribute">reloadOnRestart</span>: false
+  });
+});
+<span class="tag">gulp</span><span class="class">.task</span>(<span class="string">'default'</span>, [<span class="string">'browser-sync'</span>]);
+</code></pre><p>gulp运行时会默认执行browser-sync任务。启动browserSync，监听css文件的改变并在chrome中加载更新的部分。</p>
+<blockquote>
+<p> proxy: vhost url<br> files: 监听改变的文件<br> port: browser侦测改变的端口</p>
+</blockquote>
+<p>browserSync主要监听浏览器端的改变，要监听更新服务端需要用到nodemon</p>
+<pre><code>gulp.task(<span class="string">'nodemon'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
+  <span class="keyword">return</span> nodemon({
+    script: <span class="string">'bin/www'</span>,
+    ext: <span class="string">'js'</span>
+  }).on(<span class="string">'start'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
+
+  });
+});
+</code></pre><p>项目开发是基于express， 这段代码会执行bin/www文件运行服务端，并监听js文件的改变，每次改变重启服务。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>花了一天的时间，把gulp的一些基本用法过了一遍。总算对其有了些了解。记录下学习中的不解，也算对这次的学习一个总结。</p>
+<p>首先介绍一下gulp，gulp是一个前端构建工具，利用它可以在项目开发过程中自动化执行任务。有赖于其强大的插件系统，我们可以利用gulp完成很多任务，例如执行JSHint，编译stylus，更新版本号等。</p>]]>
+    
+    </summary>
+    
+      <category term="front-end" scheme="http://yoursite.com/tags/front-end/"/>
+    
+      <category term="tech" scheme="http://yoursite.com/tags/tech/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[双线部署遇到的问题]]></title>
