@@ -18,7 +18,7 @@
 
 
 
-  <meta name="keywords" content="life,meditation," />
+  <meta name="keywords" content="javascript,tech," />
 
 
 
@@ -31,7 +31,7 @@
 
 
 
-  <title> What we lost? // Angelina's Blog </title>
+  <title> 浅谈javascript执行作用域 // Angelina's Blog </title>
 </head>
 
 <body>
@@ -102,7 +102,7 @@
           
           
             
-              What we lost?
+              浅谈javascript执行作用域
             
           
         </h1>
@@ -110,7 +110,7 @@
 
       <div class="post-meta">
         <span class="post-time">
-          Posted on 2015-08-13
+          Posted on 2015-08-24
         </span>
 
         
@@ -119,8 +119,8 @@
           
             <span class="post-comments-count">
             &nbsp; | &nbsp;
-            <a href="/2015/08/13/What-we-lost/#comments" >
-              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015/08/13/What-we-lost/"></span>
+            <a href="/2015/08/24/浅谈javascript执行作用域/#comments" >
+              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015/08/24/浅谈javascript执行作用域/"></span>
             </a>
           </span>
           
@@ -135,15 +135,58 @@
 
       
         <blockquote>
-<p>In the age of acceleration, nothing can be more exhilarating than going slow. And in the age of distraction, nothing is so luxurious as paying attention. And in the age of constant movement, nothing is so urgent as sitting still.</p>
+<p>An old Cherokee told his grandson “my son, there is a battle between 2 wolves inside us all. One is Evil. It is anger, jealousy, greed, resentment, inferiority, lies and ego. The other is Good. It’s joy, kindness, empathy and truth”. The boy thought about it and asked “Gran, which wolf wins?”. The old man quietly replied “The one you feed”.</p>
 </blockquote>
-<p>Technologe brings our life into a new stage of century. Everything is rising faster and faster. And it means to be used by saving time. But why we still feel lack of time, even more than before? What we lost when we are all rushing into the entire new age?</p>
-<a id="more"></a>
-<p>In this complete fast going world, we work longer, spending more time on social network instead of being with friends and family in real life. I can’t belive technology is actually cutting off the connection between people. It’s hard to feel the surroundings with all your heart. And certainly, most of us, including me, read people’s life through something called Internet, something called fackbook, wechat comment and other social apps. It, however, is huge waste of time. Because I don’t need to read people’s life but join it.</p>
-<p>This is not the first time I feel that my life is going faster than I can be with. We all do. Since last year, while I was rushing into the future, all I heard in my head is noisy, the noisy from outside world. I was the most anxious,emotional painful than I ever felt, which brought me to the hell. I was crying a few times a day. without any reason. Everything that is happening can be the trigger to make me cry. My life was such a mess. I lost the inner peace. I lost the balance between inside and outside. There was nothing I can do to save my life until I went maditating again. What I found out is that the more I was emotional uncomfortable, the more concentrated I can be.</p>
-<p>Maditating is slowing me down and preventing me from rushing into the furture. Technologe dose excellent work by improving work efficiency if it’s used correctly. However, it also bring us the side effects of life. What technologe hasn’t always given us is a sense of how to wisest use of technology. In return, it perhaps makes you more tired, confused instead.</p>
-<p>This world is much more powerful, infomative. We all go too fast and want to take advantage of it. But on the other hand, it costs more on real personal life.  It’s hard to keep peace inside, that’s also exactly what outside world make us suffer by. Maybe the only way to keep ourselves, our sprits, survive from it is slowing down, feeling things around you with all your heart. The smile of people, the sounds of laughing, the sensation of touching things, and the feeling when you hug people etc.</p>
-<p>Meditation ,for me, is not only about sitting down. When you do something with 100% concentration. You are being the present, you are meditating. It’s hard to explain how it changed me. And I’m still trying. But it works. It works well.</p>
+<p><br></p>
+<p>最近看看javascript基础知识，今天来粗浅的谈谈javascript里函数作用域。</p>
+<p>说到函数作用域，就不得不提到闭包。子函数任意访问父函数的变量，并对其长期持有。父函数外部不能访问内部变量。这就是闭包。<br><a id="more"></a></p>
+<p>直接上代码：</p>
+<pre><code><span class="keyword">var</span> globalVariable = <span class="number">1</span>;
+(<span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+  <span class="keyword">var</span> localVariable = <span class="number">1</span>;
+  <span class="keyword">this</span>.add = <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+    localVariable += globalVariable;
+    <span class="built_in">console</span>.log(localVariable);
+  }
+})();
+
+add(); <span class="comment">// 2</span>
+</code></pre><p>上面的代码结构是这样的：</p>
+<pre><code><span class="list">(<span class="keyword">function</span><span class="list">()</span> <span class="collection">{ /* logic goes here */ }</span>)</span><span class="list">()</span><span class="comment">;</span>
+</code></pre><p>第一个括号内定义了一个匿名函数（以下叫做一次性匿名函数），第二个括号的作用是立即执行这个函数。上面代码中的this其实是指向外部环境。this上挂载了一个add属性。这个属性的值是一个函数字面量。也就是一次性匿名函数的内部函数。之前提到子函数可以访问父函数变量并长期持有。即使一次性匿名函数执行完后被回收掉，add()仍然是存在的（因为add方法是挂载在全局的）。由于add 长期持有localVariable的引用。我们就可以通过add() 访问localVariable，这就形成了闭包。</p>
+<h3 id="实例：">实例：</h3><p>在实际项目里，我就遇到了一个由于变量作用域导致的问题。应用场景大概是这样的：<br>在一个地图上画一个多边形，我有一个对象数组，这个数组里是每一个对象代表地图上多边形的每个折点。现在需要给每一个折点添加dragend事件，鼠标拖动点到新的位置时，更新对象数组中相应点的经纬度位置。起初我是这么做的：(注：以下仅是一段伪代码)</p>
+<pre><code>Points = [pt1, pt2, pt3, pt4, pt5]
+<span class="comment">//foreach Points as tmpPt, i</span>
+<span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">0</span>; i&lt;Points.length; i++) {
+  <span class="keyword">var</span> tmpPt = Points[i];
+  tmpPt.addEventListener(<span class="string">'dragend'</span>, <span class="function"><span class="keyword">function</span><span class="params">(e)</span></span>{
+      Points[i].latlng = e.lat + <span class="string">','</span> + e.lng;
+  });
+}
+</code></pre><p>可是执行的时候，无论我改变哪一个点的位置，Points中点的经纬度都没有变化。这是因为当我给每个点注册了事件后，循环结束，i已经变成了Points.length。dragend触发后程序试图修改Points[Points.length]（其实这个对象根本就不存在）。</p>
+<p>这里真正需要的是在回调函数执行时能够取得该点在数组中的索引值。那么就必须把每次循环里的i变成回调函数的内部参数，使其能够长期持有。我的做法是：</p>
+<pre><code>tmpPt.addEventListener(<span class="string">'dragend'</span>, (<span class="function"><span class="keyword">function</span><span class="params">(index)</span>{</span>
+    <span class="keyword">return</span> <span class="function"><span class="keyword">function</span><span class="params">(e)</span> {</span>
+        Points<span class="matrix">[index]</span>.latlng = e.lat + <span class="string">','</span> + e.lng;
+    }
+})(<span class="built_in">i</span>)
+);
+</code></pre><p>注册dragend事件是会立即执行这个一次性匿名函数，把每次循环里的i作为参数传递给一次性执行函数，最后返回一个function (这个返回的function就是回调函数)。此时的i就是一次性匿名函数的内部参数。这里形成了闭包。无论鼠标拖动哪个点，都能够在回调函数中得到正确的索引值。</p>
+<p>tips: 学习过程中顺便了解到了函数定义方法 var a = function(){} 和 function a(){} 的区别。 两个函数的调用和功能实现都是一致的。只是function语句（即后者）在解析时会发生被提升的情况。也就是说无论function被放置在哪里，都会被移动到所在作用域的顶层。</p>
+<pre><code><span class="built_in">console</span>.log(getA); <span class="comment">// 输出结果： function getA()</span>
+<span class="function"><span class="keyword">function</span> <span class="title">getA</span><span class="params">()</span></span>{
+    <span class="keyword">return</span> <span class="string">'a'</span>;
+}
+
+<span class="built_in">console</span>.log(getB); <span class="comment">// 输出结果： undefined</span>
+<span class="keyword">var</span> getB = <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
+    <span class="keyword">return</span> <span class="string">'B'</span>;
+}
+</code></pre><p>function getA(){…}在解析时就会被提到作用域顶层。 但是为了不导致混乱，还是建议大家在写代码是先定义再调用。</p>
+<h3 id="参考资料">参考资料</h3><ul>
+<li><a href="http://blog.csdn.net/pusongyang/article/details/7034904" target="_blank" rel="external">再谈Javascript中function fn(){}和var fn=function(){}</a></li>
+<li>javascript语言精粹</li>
+</ul>
 
       
     </div>
@@ -152,9 +195,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/life/"> #life </a>
+            <a href="/tags/javascript/"> #javascript </a>
           
-            <a href="/tags/meditation/"> #meditation </a>
+            <a href="/tags/tech/"> #tech </a>
           
         </div>
       
@@ -163,13 +206,11 @@
         <div class="post-nav">
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2015/08/24/浅谈javascript执行作用域/">浅谈javascript执行作用域</a>
-            
           </div>
 
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2015/06/21/gulp学习初体验/">gulp学习初体验</a>
+              <a href="/2015/08/13/What-we-lost/">What we lost?</a>
             
           </div>
         </div>
@@ -297,7 +338,7 @@
           <div class="post-toc">
             
             
-              <p class="post-toc-empty">This post does not have a Table Of Contents</p>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#实例："><span class="nav-number">1.</span> <span class="nav-text">实例：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">2.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator"></div>
@@ -870,8 +911,8 @@
 
     <script type="text/javascript">
       var disqus_shortname = 'angelinazx';
-      var disqus_identifier = '2015/08/13/What-we-lost/';
-      var disqus_url = 'http://yoursite.com/2015/08/13/What-we-lost/';
+      var disqus_identifier = '2015/08/24/浅谈javascript执行作用域/';
+      var disqus_url = 'http://yoursite.com/2015/08/24/浅谈javascript执行作用域/';
 
       (function(){
         var dsq = document.createElement('script');
