@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2015-08-24T15:49:35.000Z</updated>
+  <updated>2015-09-19T13:13:21.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -13,6 +13,119 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[understanding node process(1)]]></title>
+    <link href="http://yoursite.com/2015/09/19/understanding-node-process-1/"/>
+    <id>http://yoursite.com/2015/09/19/understanding-node-process-1/</id>
+    <published>2015-09-19T12:52:53.000Z</published>
+    <updated>2015-09-19T13:13:21.000Z</updated>
+    <content type="html"><![CDATA[<blockquote>
+<p>And Lost be the day to us in Which a measure hath not been danced.</p>
+<p>And false be every truth which hath not had laughter along with it.</p>
+<p>— Niezsche</p>
+</blockquote>
+<p>As we know, javascript is running on a single process, which brings a question, how can we get the multi-core CPU fully work?</p>
+<a id="more"></a>
+<h2 id="Multi-process_structure">Multi-process structure</h2><p>Fortunately, node offers us child_process moudle so that we can easily create multi-porcess and work them together.</p>
+<p>First of all, we create a js file named parent.js which will create a child process and listen to it.</p>
+<pre><code><span class="comment">//parent.js</span>
+<span class="keyword">var</span> cp = <span class="built_in">require</span>(<span class="string">'child_process'</span>),
+    n = cp.fork(<span class="string">'test/child.js'</span>);
+
+n.on(<span class="string">'message'</span>, <span class="function"><span class="keyword">function</span><span class="params">(m)</span> </span>{
+  <span class="built_in">console</span>.log(<span class="string">'parent got message: '</span>, m);
+});
+
+n.send({hello: <span class="string">'world'</span>});
+</code></pre><p>Note that <code>fork</code> creates a new process whice has all the mehods in a normal ChildProcess with a build-in communication channel(Inter-Process communication channel ). So we can write to a child using <code>send</code> method.</p>
+<p>what the child process does is, as same as the parent process’s, listening to the parent process. When there is message come, they print the message out.</p>
+<pre><code>process.on(<span class="string">'message'</span>, <span class="function"><span class="keyword">function</span><span class="params">(m)</span> </span>{
+  <span class="built_in">console</span>.log(<span class="string">'child got meaage: '</span>, m);
+});
+process.send({foo: <span class="string">'bar'</span>});
+</code></pre><p>Running command  <code>node parent.js</code> we can get the following:</p>
+<pre><code>child got <span class="string">meaage:</span>  { <span class="string">hello:</span> <span class="string">'world'</span> }
+parent got <span class="string">message:</span>  { <span class="string">foo:</span> <span class="string">'bar'</span> }
+</code></pre><p>Here we go, now we have two process runing and communicating.</p>
+<h2 id="the_handler_delivery">the handler delivery</h2><p>Only text message sent is probably not enough. However, we can also send TCP server or socket object as handler to another process.</p>
+<pre><code><span class="comment">//parent.js</span>
+<span class="keyword">var</span> cp = <span class="built_in">require</span>(<span class="string">'child_process'</span>),
+  child = cp.fork(<span class="string">'test/child.js'</span>);
+
+<span class="keyword">var</span> server = <span class="built_in">require</span>(<span class="string">'net'</span>).createServer();
+server.on(<span class="string">'connection'</span>, <span class="function"><span class="keyword">function</span><span class="params">(socket)</span> </span>{
+  socket.end(<span class="string">'handled by parent\n'</span>);
+});
+
+server.listen(<span class="number">1337</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+  child.send(<span class="string">'server'</span>, server);
+});
+</code></pre><p>the child.js would look like this:</p>
+<pre><code>process.on(<span class="string">'message'</span>, <span class="function"><span class="keyword">function</span><span class="params">(m, server)</span></span> {
+  <span class="keyword">if</span>(m === <span class="string">'server'</span>) {
+    server.on(<span class="string">'connection'</span>, <span class="function"><span class="keyword">function</span><span class="params">(socket)</span></span> {
+      socket.<span class="keyword">end</span>(<span class="string">'handled by child\n'</span>);
+    });
+  }
+});
+</code></pre><p>Now the server is shared between the parent and child. That means connections can be handled by either of them. Running <code>node parent.js</code> and we test it by <code>curl &quot;http://localhost:1337/&quot;</code> the result can be both.</p>
+<p>What if we seperate the tasks of parent process and child process? Once the handle is sent to child process from parent process, we close the server so it no longer listens to the port.</p>
+<pre><code><span class="comment">//parent.js</span>
+<span class="keyword">var</span> cp = <span class="built_in">require</span>(<span class="string">'child_process'</span>),
+    child1 = cp.fork(<span class="string">'test/child.js'</span>),
+    child2 = cp.fork(<span class="string">'test/child.js'</span>);
+
+<span class="keyword">var</span> server = <span class="built_in">require</span>(<span class="string">'net'</span>).createServer();
+
+server.listen(<span class="number">1337</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+  child1.send(<span class="string">'server'</span>, server);
+  child2.send(<span class="string">'server'</span>, server);
+  server.close();
+});
+
+server.on(<span class="string">'close'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
+  <span class="built_in">console</span>.log(<span class="string">'server closed'</span>);
+})
+</code></pre><p>change child.js a litte:</p>
+<pre><code><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>);
+
+<span class="keyword">var</span> server = http.createServer(<span class="function"><span class="keyword">function</span><span class="params">(req,res)</span> </span>{
+  res.writeHead(<span class="number">200</span>, {<span class="string">'Content-Type'</span>: <span class="string">'text/plain'</span>});
+  res.end(<span class="string">'handled by child, pid is '</span> + process.pid + <span class="string">'\n'</span>);
+});
+
+process.on(<span class="string">'message'</span>, <span class="function"><span class="keyword">function</span><span class="params">(m, tcp)</span> </span>{
+  <span class="keyword">if</span>(m === <span class="string">'server'</span>) {
+    tcp.on(<span class="string">'connection'</span>, <span class="function"><span class="keyword">function</span><span class="params">(socket)</span> </span>{
+      server.emit(<span class="string">'connection'</span>, socket);
+    });
+  }
+});
+</code></pre><p>Now we have two child processes to listen to the port. Once TCP connection is emited, we emit http connection and send client socket object to http server to do something.</p>
+<p>Notice that tcp server is shard by more than one child process, It’s possible that the request is handled by differnt child process. But it’s fine. The process  service is preemptive. Depends how busy the process is, the less busy one will handle the request.</p>
+<p>Even if node is running on a single process, with multi-process running, we can still better using multi-core CPU and likely to handle high loads situation.</p>
+<h3 id="Reference">Reference</h3><ul>
+<li><a href="https://nodejs.org/api/child_process.html" target="_blank" rel="external">Node.js v4.1.0 Documentation</a></li>
+</ul>
+]]></content>
+    <summary type="html">
+    <![CDATA[<blockquote>
+<p>And Lost be the day to us in Which a measure hath not been danced.</p>
+<p>And false be every truth which hath not had laughter along with it.</p>
+<p>— Niezsche</p>
+</blockquote>
+<p>As we know, javascript is running on a single process, which brings a question, how can we get the multi-core CPU fully work?</p>]]>
+    
+    </summary>
+    
+      <category term="javascript" scheme="http://yoursite.com/tags/javascript/"/>
+    
+      <category term="node" scheme="http://yoursite.com/tags/node/"/>
+    
+      <category term="tech" scheme="http://yoursite.com/tags/tech/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[浅谈javascript执行作用域]]></title>

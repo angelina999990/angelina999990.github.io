@@ -18,7 +18,7 @@
 
 
 
-  <meta name="keywords" content="front-end,tech," />
+  <meta name="keywords" content="javascript,node,tech," />
 
 
 
@@ -31,7 +31,7 @@
 
 
 
-  <title> gulp学习初体验 // Angelina ZX </title>
+  <title> understanding node process(1) // Angelina ZX </title>
 </head>
 
 <body>
@@ -102,7 +102,7 @@
           
           
             
-              gulp学习初体验
+              understanding node process(1)
             
           
         </h1>
@@ -110,7 +110,7 @@
 
       <div class="post-meta">
         <span class="post-time">
-          Posted on 2015-06-21
+          Posted on 2015-09-19
         </span>
 
         
@@ -119,8 +119,8 @@
           
             <span class="post-comments-count">
             &nbsp; | &nbsp;
-            <a href="/2015/06/21/gulp学习初体验/#comments" >
-              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015/06/21/gulp学习初体验/"></span>
+            <a href="/2015/09/19/understanding-node-process-1/#comments" >
+              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015/09/19/understanding-node-process-1/"></span>
             </a>
           </span>
           
@@ -134,69 +134,94 @@
       
 
       
-        <p>花了一天的时间，把gulp的一些基本用法过了一遍。总算对其有了些了解。记录下学习中的不解，也算对这次的学习一个总结。</p>
-<p>首先介绍一下gulp，gulp是一个前端构建工具，利用它可以在项目开发过程中自动化执行任务。有赖于其强大的插件系统，我们可以利用gulp完成很多任务，例如执行JSHint，编译stylus，更新版本号等。</p>
-<a id="more"></a>
-<h2 id="安装gulp：">安装gulp：</h2><p>全局安装：</p>
-<pre><code>npm <span class="keyword">install</span> -g gulp
-</code></pre><p>项目安装：</p>
-<pre><code>npm install --<span class="built_in">save</span>-<span class="built_in">dev</span> gulp
-</code></pre><p>—save-dev 安装包将在开发环境下安装，版本信息写入package.json的devDependencies下。</p>
-<p>gulp任务都定义在gulpfile.js中，可以在终端运行gulp命令来执行。</p>
-<h2 id="gulp任务">gulp任务</h2><p>加载gulp模块</p>
-<pre><code><span class="reserved">var</span> gulp = <span class="built_in">require</span>(<span class="string">'gulp'</span>);
-</code></pre><p>其他gulp插件的加载也是一样。</p>
-<p>下面是一段编译stylus的gulp task代码，用来简单解释一下gulp的工作流程。</p>
-<pre><code>gulp.task(<span class="string">'stylus'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
-  gulp.src(<span class="string">'./assets/stylus/style.styl'</span>)
-      .pipe(stylus())
-      .pipe(gulp.dest(<span class="string">'./assets/stylesheets'</span>));
-});
-</code></pre><p>gulp.task(taskName, excutor)用来定义任务。需要任务名和执行函数两个参数。执行函数也可以是多个任务。</p>
-<p>gulp.task(‘build’, [‘task’, ‘anotherTask’]);</p>
-<p>但是这些任务不是顺序执行的。要保证一个任务先于另一个执行可以：</p>
-<pre><code>gulp.task(<span class="string">'taskTwo'</span>, [<span class="string">'taskOne'</span>], <span class="function"><span class="keyword">function</span> <span class="params">()</span> </span>{
-   <span class="comment">// taskTwo</span>
-});
-</code></pre><p>taskTwo 会在 taskOne执行完后再执行。</p>
-<p>gulp.src()函数用来匹配文件，创建一个对象流来代表这些文件，之后的操作都是以这些文件为对象进行操作。pipe顾名思义就是管道的意思， stylus()返回修改后的文件对象放入流中，这些输出的文件随着管道被输入到gulp.dest()函数中并保持下来。</p>
-<p>最后不要忘记在文件头部加载gulp-stylus模块。</p>
-<h2 id="运行gulp">运行gulp</h2><p>终端执行 <code>$ gulp</code> 会报错，因为gulp默认会执行default 任务。需要在gulpfile.js内定义此任务</p>
-<pre><code>gulp.task(<span class="string">'default'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
-  <span class="comment">//deal with default task</span>
-})
-</code></pre><p>如果要运行指定任务</p>
-<pre><code><span class="variable">$ </span>gulp taskName
-</code></pre><h2 id="watching_files">watching files</h2><p>用gulp来监听文件的修改状态非常方便。我们来定义一个watch任务看一下</p>
-<pre><code>gulp.task(<span class="string">'watch'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
-  gulp.watch(<span class="string">'./assets/stylus/*.styl'</span>, [<span class="string">'stylus'</span>]);
-});
-</code></pre><p>现在当改变styl文件时就会执行stylus任务。</p>
-<p>当然仅仅是watch是不够的，我们还希望在文件修改的同时浏览器能同步更新。browserSync插件就可以做到。当改变代码的时候，BrowserSync会重新加载页面，如果是css文件，会直接添加进css中，页面并不需要再次刷新。这样我们修改前端代码时就不需要每次都手动刷新浏览器。</p>
-<pre><code><span class="tag">gulp</span><span class="class">.task</span>(<span class="string">'browser-sync'</span>, <span class="function">function</span>(){
-  <span class="tag">browserSync</span><span class="class">.init</span>(null, {
-    <span class="attribute">proxy</span>: <span class="string">'http://localhost:3000'</span>,
-    <span class="attribute">files</span>: [<span class="string">'assets/stylesheets/*.css'</span>],
-    <span class="attribute">browser</span>: <span class="string">'google-chrome'</span>,
-    <span class="attribute">port</span>: <span class="number">7000</span>,
-    <span class="attribute">reloadOnRestart</span>: false
-  });
-});
-<span class="tag">gulp</span><span class="class">.task</span>(<span class="string">'default'</span>, [<span class="string">'browser-sync'</span>]);
-</code></pre><p>gulp运行时会默认执行browser-sync任务。启动browserSync，监听css文件的改变并在chrome中加载更新的部分。</p>
-<blockquote>
-<p> proxy: vhost url<br> files: 监听改变的文件<br> port: browser侦测改变的端口</p>
+        <blockquote>
+<p>And Lost be the day to us in Which a measure hath not been danced.</p>
+<p>And false be every truth which hath not had laughter along with it.</p>
+<p>— Niezsche</p>
 </blockquote>
-<p>browserSync主要监听浏览器端的改变，要监听更新服务端需要用到nodemon</p>
-<pre><code>gulp.task(<span class="string">'nodemon'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
-  <span class="keyword">return</span> nodemon({
-    script: <span class="string">'bin/www'</span>,
-    ext: <span class="string">'js'</span>
-  }).on(<span class="string">'start'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
+<p>As we know, javascript is running on a single process, which brings a question, how can we get the multi-core CPU fully work?</p>
+<a id="more"></a>
+<h2 id="Multi-process_structure">Multi-process structure</h2><p>Fortunately, node offers us child_process moudle so that we can easily create multi-porcess and work them together.</p>
+<p>First of all, we create a js file named parent.js which will create a child process and listen to it.</p>
+<pre><code><span class="comment">//parent.js</span>
+<span class="keyword">var</span> cp = <span class="built_in">require</span>(<span class="string">'child_process'</span>),
+    n = cp.fork(<span class="string">'test/child.js'</span>);
 
-  });
+n.on(<span class="string">'message'</span>, <span class="function"><span class="keyword">function</span><span class="params">(m)</span> </span>{
+  <span class="built_in">console</span>.log(<span class="string">'parent got message: '</span>, m);
 });
-</code></pre><p>项目开发是基于express， 这段代码会执行bin/www文件运行服务端，并监听js文件的改变，每次改变重启服务。</p>
+
+n.send({hello: <span class="string">'world'</span>});
+</code></pre><p>Note that <code>fork</code> creates a new process whice has all the mehods in a normal ChildProcess with a build-in communication channel(Inter-Process communication channel ). So we can write to a child using <code>send</code> method.</p>
+<p>what the child process does is, as same as the parent process’s, listening to the parent process. When there is message come, they print the message out.</p>
+<pre><code>process.on(<span class="string">'message'</span>, <span class="function"><span class="keyword">function</span><span class="params">(m)</span> </span>{
+  <span class="built_in">console</span>.log(<span class="string">'child got meaage: '</span>, m);
+});
+process.send({foo: <span class="string">'bar'</span>});
+</code></pre><p>Running command  <code>node parent.js</code> we can get the following:</p>
+<pre><code>child got <span class="string">meaage:</span>  { <span class="string">hello:</span> <span class="string">'world'</span> }
+parent got <span class="string">message:</span>  { <span class="string">foo:</span> <span class="string">'bar'</span> }
+</code></pre><p>Here we go, now we have two process runing and communicating.</p>
+<h2 id="the_handler_delivery">the handler delivery</h2><p>Only text message sent is probably not enough. However, we can also send TCP server or socket object as handler to another process.</p>
+<pre><code><span class="comment">//parent.js</span>
+<span class="keyword">var</span> cp = <span class="built_in">require</span>(<span class="string">'child_process'</span>),
+  child = cp.fork(<span class="string">'test/child.js'</span>);
+
+<span class="keyword">var</span> server = <span class="built_in">require</span>(<span class="string">'net'</span>).createServer();
+server.on(<span class="string">'connection'</span>, <span class="function"><span class="keyword">function</span><span class="params">(socket)</span> </span>{
+  socket.end(<span class="string">'handled by parent\n'</span>);
+});
+
+server.listen(<span class="number">1337</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+  child.send(<span class="string">'server'</span>, server);
+});
+</code></pre><p>the child.js would look like this:</p>
+<pre><code>process.on(<span class="string">'message'</span>, <span class="function"><span class="keyword">function</span><span class="params">(m, server)</span></span> {
+  <span class="keyword">if</span>(m === <span class="string">'server'</span>) {
+    server.on(<span class="string">'connection'</span>, <span class="function"><span class="keyword">function</span><span class="params">(socket)</span></span> {
+      socket.<span class="keyword">end</span>(<span class="string">'handled by child\n'</span>);
+    });
+  }
+});
+</code></pre><p>Now the server is shared between the parent and child. That means connections can be handled by either of them. Running <code>node parent.js</code> and we test it by <code>curl &quot;http://localhost:1337/&quot;</code> the result can be both.</p>
+<p>What if we seperate the tasks of parent process and child process? Once the handle is sent to child process from parent process, we close the server so it no longer listens to the port.</p>
+<pre><code><span class="comment">//parent.js</span>
+<span class="keyword">var</span> cp = <span class="built_in">require</span>(<span class="string">'child_process'</span>),
+    child1 = cp.fork(<span class="string">'test/child.js'</span>),
+    child2 = cp.fork(<span class="string">'test/child.js'</span>);
+
+<span class="keyword">var</span> server = <span class="built_in">require</span>(<span class="string">'net'</span>).createServer();
+
+server.listen(<span class="number">1337</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+  child1.send(<span class="string">'server'</span>, server);
+  child2.send(<span class="string">'server'</span>, server);
+  server.close();
+});
+
+server.on(<span class="string">'close'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
+  <span class="built_in">console</span>.log(<span class="string">'server closed'</span>);
+})
+</code></pre><p>change child.js a litte:</p>
+<pre><code><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>);
+
+<span class="keyword">var</span> server = http.createServer(<span class="function"><span class="keyword">function</span><span class="params">(req,res)</span> </span>{
+  res.writeHead(<span class="number">200</span>, {<span class="string">'Content-Type'</span>: <span class="string">'text/plain'</span>});
+  res.end(<span class="string">'handled by child, pid is '</span> + process.pid + <span class="string">'\n'</span>);
+});
+
+process.on(<span class="string">'message'</span>, <span class="function"><span class="keyword">function</span><span class="params">(m, tcp)</span> </span>{
+  <span class="keyword">if</span>(m === <span class="string">'server'</span>) {
+    tcp.on(<span class="string">'connection'</span>, <span class="function"><span class="keyword">function</span><span class="params">(socket)</span> </span>{
+      server.emit(<span class="string">'connection'</span>, socket);
+    });
+  }
+});
+</code></pre><p>Now we have two child processes to listen to the port. Once TCP connection is emited, we emit http connection and send client socket object to http server to do something.</p>
+<p>Notice that tcp server is shard by more than one child process, It’s possible that the request is handled by differnt child process. But it’s fine. The process  service is preemptive. Depends how busy the process is, the less busy one will handle the request.</p>
+<p>Even if node is running on a single process, with multi-process running, we can still better using multi-core CPU and likely to handle high loads situation.</p>
+<h3 id="Reference">Reference</h3><ul>
+<li><a href="https://nodejs.org/api/child_process.html" target="_blank" rel="external">Node.js v4.1.0 Documentation</a></li>
+</ul>
 
       
     </div>
@@ -205,7 +230,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/front-end/"> #front-end </a>
+            <a href="/tags/javascript/"> #javascript </a>
+          
+            <a href="/tags/node/"> #node </a>
           
             <a href="/tags/tech/"> #tech </a>
           
@@ -216,13 +243,11 @@
         <div class="post-nav">
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2015/08/13/What-we-lost/">What we lost?</a>
-            
           </div>
 
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2015/05/03/双线部署遇到的问题/">双线部署遇到的问题</a>
+              <a href="/2015/08/24/浅谈javascript执行作用域/">浅谈javascript执行作用域</a>
             
           </div>
         </div>
@@ -350,7 +375,7 @@
           <div class="post-toc">
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#安装gulp："><span class="nav-number">1.</span> <span class="nav-text">安装gulp：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gulp任务"><span class="nav-number">2.</span> <span class="nav-text">gulp任务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#运行gulp"><span class="nav-number">3.</span> <span class="nav-text">运行gulp</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#watching_files"><span class="nav-number">4.</span> <span class="nav-text">watching files</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Multi-process_structure"><span class="nav-number">1.</span> <span class="nav-text">Multi-process structure</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#the_handler_delivery"><span class="nav-number">2.</span> <span class="nav-text">the handler delivery</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">2.1.</span> <span class="nav-text">Reference</span></a></li></ol></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator"></div>
@@ -923,8 +948,8 @@
 
     <script type="text/javascript">
       var disqus_shortname = 'angelinazx';
-      var disqus_identifier = '2015/06/21/gulp学习初体验/';
-      var disqus_url = 'http://yoursite.com/2015/06/21/gulp学习初体验/';
+      var disqus_identifier = '2015/09/19/understanding-node-process-1/';
+      var disqus_url = 'http://yoursite.com/2015/09/19/understanding-node-process-1/';
 
       (function(){
         var dsq = document.createElement('script');
