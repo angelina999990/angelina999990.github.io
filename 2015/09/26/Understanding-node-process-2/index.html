@@ -18,7 +18,7 @@
 
 
 
-  <meta name="keywords" content="Hexo,next" />
+  <meta name="keywords" content="javascript,node,tech," />
 
 
 
@@ -31,13 +31,11 @@
 
 
 
-  <title> Angelina ZX </title>
+  <title> Understanding node process (2) // Angelina ZX </title>
 </head>
 
 <body>
-  <div class="container one-column 
-   page-home 
-">
+  <div class="container one-column page-post-detail">
     <div class="headband"></div>
 
     <div id="header" class="header">
@@ -91,9 +89,9 @@
       <div class="main-inner">
         <div id="content" class="content">
           
+
   <div id="posts" class="posts-expand">
     
-      
 
   <div class="post post-type-normal ">
     <div class="post-header">
@@ -104,9 +102,7 @@
           
           
             
-              <a class="post-title-link" href="/2015/09/26/Understanding-node-process-2/">
-                Understanding node process (2)
-              </a>
+              Understanding node process (2)
             
           
         </h1>
@@ -138,8 +134,7 @@
       
 
       
-        
-          <blockquote>
+        <blockquote>
 <p>If you have been broken, mend yourself. Knowing that you will become more beautiful. And always think before you act. an apology cannot repair something you’ve done without thought.</p>
 </blockquote>
 <p>Last week we talked about multi process and process communication. Today we’re going to take a look at its stability.</p>
@@ -304,7 +299,6 @@ process.on(<span class="string">"exit"</span>, <span class="function"><span clas
 <li><a href="https://nodejs.org/api/process.html#process_signal_events" target="_blank" rel="external">Node.js v4.1.1 Documentation</a></li>
 </ul>
 
-        
       
     </div>
 
@@ -322,506 +316,37 @@ process.on(<span class="string">"exit"</span>, <span class="function"><span clas
       
 
       
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </div>
-  </div>
-
-
-    
-      
-
-  <div class="post post-type-normal ">
-    <div class="post-header">
-
-      
-      
-        <h1 class="post-title">
-          
-          
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
             
-              <a class="post-title-link" href="/2015/09/19/understanding-node-process-1/">
-                understanding node process(1)
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on 2015-09-19
-        </span>
-
-        
-
-        
-          
-            <span class="post-comments-count">
-            &nbsp; | &nbsp;
-            <a href="/2015/09/19/understanding-node-process-1/#comments" >
-              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015/09/19/understanding-node-process-1/"></span>
-            </a>
-          </span>
-          
-        
-      </div>
-    </div>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <blockquote>
-<p>And Lost be the day to us in Which a measure hath not been danced.</p>
-<p>And false be every truth which hath not had laughter along with it.</p>
-<p>— Niezsche</p>
-</blockquote>
-<p>As we know, javascript is running on a single process, which brings a question, how can we get the multi-core CPU fully work?</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/09/19/understanding-node-process-1/">
-              Read more &raquo;
-            </a>
           </div>
-        
-      
-    </div>
 
-    <div class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/javascript/"> #javascript </a>
-          
-            <a href="/tags/node/"> #node </a>
-          
-            <a href="/tags/tech/"> #tech </a>
-          
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/09/19/understanding-node-process-1/">understanding node process(1)</a>
+            
+          </div>
         </div>
       
 
       
-
-      
-      
-        <div class="post-eof"></div>
       
     </div>
   </div>
 
 
+
     
-      
-
-  <div class="post post-type-normal ">
-    <div class="post-header">
-
-      
-      
-        <h1 class="post-title">
-          
-          
-            
-              <a class="post-title-link" href="/2015/08/24/浅谈javascript执行作用域/">
-                浅谈javascript执行作用域
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on 2015-08-24
-        </span>
-
+      <div class="comments" id="comments">
         
-
-        
-          
-            <span class="post-comments-count">
-            &nbsp; | &nbsp;
-            <a href="/2015/08/24/浅谈javascript执行作用域/#comments" >
-              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015/08/24/浅谈javascript执行作用域/"></span>
-            </a>
-          </span>
-          
-        
-      </div>
-    </div>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <blockquote>
-<p>An old Cherokee told his grandson “my son, there is a battle between 2 wolves inside us all. One is Evil. It is anger, jealousy, greed, resentment, inferiority, lies and ego. The other is Good. It’s joy, kindness, empathy and truth”. The boy thought about it and asked “Gran, which wolf wins?”. The old man quietly replied “The one you feed”.</p>
-</blockquote>
-<p><br></p>
-<p>最近看看javascript基础知识，今天来粗浅的谈谈javascript里函数作用域。</p>
-<p>说到函数作用域，就不得不提到闭包。子函数任意访问父函数的变量，并对其长期持有。父函数外部不能访问内部变量。这就是闭包。<br>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/08/24/浅谈javascript执行作用域/">
-              Read more &raquo;
-            </a>
+          <div id="disqus_thread">
+            <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
           </div>
         
-      
-    </div>
-
-    <div class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/javascript/"> #javascript </a>
-          
-            <a href="/tags/tech/"> #tech </a>
-          
-        </div>
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </div>
-  </div>
-
-
-    
-      
-
-  <div class="post post-type-normal ">
-    <div class="post-header">
-
-      
-      
-        <h1 class="post-title">
-          
-          
-            
-              <a class="post-title-link" href="/2015/08/13/What-we-lost/">
-                What we lost?
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on 2015-08-13
-        </span>
-
-        
-
-        
-          
-            <span class="post-comments-count">
-            &nbsp; | &nbsp;
-            <a href="/2015/08/13/What-we-lost/#comments" >
-              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015/08/13/What-we-lost/"></span>
-            </a>
-          </span>
-          
-        
       </div>
-    </div>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <blockquote>
-<p>In the age of acceleration, nothing can be more exhilarating than going slow. And in the age of distraction, nothing is so luxurious as paying attention. And in the age of constant movement, nothing is so urgent as sitting still.</p>
-</blockquote>
-<p>Technologe brings our life into a new stage of century. Everything is rising faster and faster. And it means to be used by saving time. But why we still feel lack of time, even more than before? What we lost when we are all rushing into the entire new age?</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/08/13/What-we-lost/">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/life/"> #life </a>
-          
-            <a href="/tags/meditation/"> #meditation </a>
-          
-        </div>
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </div>
-  </div>
-
-
-    
-      
-
-  <div class="post post-type-normal ">
-    <div class="post-header">
-
-      
-      
-        <h1 class="post-title">
-          
-          
-            
-              <a class="post-title-link" href="/2015/06/21/gulp学习初体验/">
-                gulp学习初体验
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on 2015-06-21
-        </span>
-
-        
-
-        
-          
-            <span class="post-comments-count">
-            &nbsp; | &nbsp;
-            <a href="/2015/06/21/gulp学习初体验/#comments" >
-              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015/06/21/gulp学习初体验/"></span>
-            </a>
-          </span>
-          
-        
-      </div>
-    </div>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>花了一天的时间，把gulp的一些基本用法过了一遍。总算对其有了些了解。记录下学习中的不解，也算对这次的学习一个总结。</p>
-<p>首先介绍一下gulp，gulp是一个前端构建工具，利用它可以在项目开发过程中自动化执行任务。有赖于其强大的插件系统，我们可以利用gulp完成很多任务，例如执行JSHint，编译stylus，更新版本号等。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/06/21/gulp学习初体验/">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/front-end/"> #front-end </a>
-          
-            <a href="/tags/tech/"> #tech </a>
-          
-        </div>
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </div>
-  </div>
-
-
-    
-      
-
-  <div class="post post-type-normal ">
-    <div class="post-header">
-
-      
-      
-        <h1 class="post-title">
-          
-          
-            
-              <a class="post-title-link" href="/2015/05/03/双线部署遇到的问题/">
-                双线部署遇到的问题
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on 2015-05-03
-        </span>
-
-        
-
-        
-          
-            <span class="post-comments-count">
-            &nbsp; | &nbsp;
-            <a href="/2015/05/03/双线部署遇到的问题/#comments" >
-              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015/05/03/双线部署遇到的问题/"></span>
-            </a>
-          </span>
-          
-        
-      </div>
-    </div>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>本来博客是放在github上面，但是由于国内网络环境（大家懂的），github访问不是很稳定，随时被查水表。所以采取网友的建议，在gitcafe也部署一个。gifcafe是国内的，速度杠杠的～</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/05/03/双线部署遇到的问题/">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/issue/"> #issue </a>
-          
-            <a href="/tags/tech/"> #tech </a>
-          
-        </div>
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </div>
-  </div>
-
-
-    
-      
-
-  <div class="post post-type-normal ">
-    <div class="post-header">
-
-      
-      
-        <h1 class="post-title">
-          
-          
-            
-              <a class="post-title-link" href="/2015/05/02/setup-Macbook/">
-                setup Macbook
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on 2015-05-02
-        </span>
-
-        
-
-        
-          
-            <span class="post-comments-count">
-            &nbsp; | &nbsp;
-            <a href="/2015/05/02/setup-Macbook/#comments" >
-              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015/05/02/setup-Macbook/"></span>
-            </a>
-          </span>
-          
-        
-      </div>
-    </div>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <blockquote>
-<p>工欲善其事，必先利其器</p>
-</blockquote>
-<p>折腾了两天，终于把新到手的Macbook 各种配置好！ 中间遇到的问题不是一般两般的多，谁叫我是新手呢！！！</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/05/02/setup-Macbook/">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/Mac/"> #Mac </a>
-          
-            <a href="/tags/front-end/"> #front-end </a>
-          
-        </div>
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </div>
-  </div>
-
-
     
   </div>
 
-  
 
         </div>
       </div>
@@ -839,6 +364,15 @@ process.on(<span class="string">"exit"</span>, <span class="function"><span clas
   <div id="sidebar" class="sidebar">
     <div class="sidebar-inner">
 
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table Of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            Overview
+          </li>
+        </ul>
       
 
       <div class="site-overview">
@@ -911,6 +445,17 @@ process.on(<span class="string">"exit"</span>, <span class="function"><span clas
 
       </div>
 
+      
+        <div class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#process_restart"><span class="nav-number">1.</span> <span class="nav-text">process restart</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#limit_restarts"><span class="nav-number">2.</span> <span class="nav-text">limit restarts</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#reference"><span class="nav-number">3.</span> <span class="nav-text">reference</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </div>
       
 
     </div>
@@ -1142,6 +687,328 @@ process.on(<span class="string">"exit"</span>, <span class="function"><span clas
 
 
   
+  
+<script type="text/javascript" id="bootstrap.scrollspy.custom">
+  /* ========================================================================
+  * Bootstrap: scrollspy.js v3.3.2
+  * http://getbootstrap.com/javascript/#scrollspy
+  * ========================================================================
+  * Copyright 2011-2015 Twitter, Inc.
+  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+  * ======================================================================== */
+
+  /**
+   * Custom by iissnan
+   *
+   * - Add a `clear.bs.scrollspy` event.
+   * - Esacpe targets selector.
+   */
+
+
+  +function ($) {
+    'use strict';
+
+    // SCROLLSPY CLASS DEFINITION
+    // ==========================
+
+    function ScrollSpy(element, options) {
+      this.$body          = $(document.body)
+      this.$scrollElement = $(element).is(document.body) ? $(window) : $(element)
+      this.options        = $.extend({}, ScrollSpy.DEFAULTS, options)
+      this.selector       = (this.options.target || '') + ' .nav li > a'
+      this.offsets        = []
+      this.targets        = []
+      this.activeTarget   = null
+      this.scrollHeight   = 0
+
+      this.$scrollElement.on('scroll.bs.scrollspy', $.proxy(this.process, this))
+      this.refresh()
+      this.process()
+    }
+
+    ScrollSpy.VERSION  = '3.3.2'
+
+    ScrollSpy.DEFAULTS = {
+      offset: 10
+    }
+
+    ScrollSpy.prototype.getScrollHeight = function () {
+      return this.$scrollElement[0].scrollHeight || Math.max(this.$body[0].scrollHeight, document.documentElement.scrollHeight)
+    }
+
+    ScrollSpy.prototype.refresh = function () {
+      var that          = this
+      var offsetMethod  = 'offset'
+      var offsetBase    = 0
+
+      this.offsets      = []
+      this.targets      = []
+      this.scrollHeight = this.getScrollHeight()
+
+      if (!$.isWindow(this.$scrollElement[0])) {
+        offsetMethod = 'position'
+        offsetBase   = this.$scrollElement.scrollTop()
+      }
+
+      this.$body
+        .find(this.selector)
+        .map(function () {
+          var $el   = $(this)
+          var href  = $el.data('target') || $el.attr('href')
+          var $href = /^#./.test(href) && $(escapeSelector(href)) // Need to escape selector.
+
+          return ($href
+            && $href.length
+            && $href.is(':visible')
+            && [[$href[offsetMethod]().top + offsetBase, href]]) || null
+        })
+        .sort(function (a, b) { return a[0] - b[0] })
+        .each(function () {
+          that.offsets.push(this[0])
+          that.targets.push(this[1])
+        })
+
+
+    }
+
+    ScrollSpy.prototype.process = function () {
+      var scrollTop    = this.$scrollElement.scrollTop() + this.options.offset
+      var scrollHeight = this.getScrollHeight()
+      var maxScroll    = this.options.offset + scrollHeight - this.$scrollElement.height()
+      var offsets      = this.offsets
+      var targets      = this.targets
+      var activeTarget = this.activeTarget
+      var i
+
+      if (this.scrollHeight != scrollHeight) {
+        this.refresh()
+      }
+
+      if (scrollTop >= maxScroll) {
+        return activeTarget != (i = targets[targets.length - 1]) && this.activate(i)
+      }
+
+      if (activeTarget && scrollTop < offsets[0]) {
+        $(this.selector).trigger('clear.bs.scrollspy')  // Add a custom event.
+        this.activeTarget = null
+        return this.clear()
+      }
+
+      for (i = offsets.length; i--;) {
+        activeTarget != targets[i]
+          && scrollTop >= offsets[i]
+          && (!offsets[i + 1] || scrollTop <= offsets[i + 1])
+          && this.activate(targets[i])
+      }
+    }
+
+    ScrollSpy.prototype.activate = function (target) {
+      this.activeTarget = target
+
+      this.clear()
+
+      var selector = this.selector +
+        '[data-target="' + target + '"],' +
+        this.selector + '[href="' + target + '"]'
+
+      var active = $(selector)
+        .parents('li')
+        .addClass('active')
+
+      if (active.parent('.dropdown-menu').length) {
+        active = active
+          .closest('li.dropdown')
+          .addClass('active')
+      }
+
+      active.trigger('activate.bs.scrollspy')
+    }
+
+    ScrollSpy.prototype.clear = function () {
+      $(this.selector)
+        .parentsUntil(this.options.target, '.active')
+        .removeClass('active')
+    }
+
+
+    // SCROLLSPY PLUGIN DEFINITION
+    // ===========================
+
+    function Plugin(option) {
+      return this.each(function () {
+        var $this   = $(this)
+        var data    = $this.data('bs.scrollspy')
+        var options = typeof option == 'object' && option
+
+        if (!data) $this.data('bs.scrollspy', (data = new ScrollSpy(this, options)))
+        if (typeof option == 'string') data[option]()
+      })
+    }
+
+    var old = $.fn.scrollspy
+
+    $.fn.scrollspy             = Plugin
+    $.fn.scrollspy.Constructor = ScrollSpy
+
+
+    // SCROLLSPY NO CONFLICT
+    // =====================
+
+    $.fn.scrollspy.noConflict = function () {
+      $.fn.scrollspy = old
+      return this
+    }
+
+
+    // SCROLLSPY DATA-API
+    // ==================
+
+    $(window).on('load.bs.scrollspy.data-api', function () {
+      $('[data-spy="scroll"]').each(function () {
+        var $spy = $(this)
+        Plugin.call($spy, $spy.data())
+      })
+    })
+
+  }(jQuery);
+</script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var $sidebarInner = $('.sidebar-inner');
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.didShow', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+          var self = this;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      $(indicator).velocity('stop').velocity({
+        opacity: action === 'show' ? 0.4 : 0
+      }, { duration: 100 });
+    }
+
+  });
+</script>
+
+
+  <script type="text/javascript" id="sidebar.nav">
+    $(document).ready(function () {
+      var html = $('html');
+
+      $('.sidebar-nav li').on('click', function () {
+        var item = $(this);
+        var activeTabClassName = 'sidebar-nav-active';
+        var activePanelClassName = 'sidebar-panel-active';
+        if (item.hasClass(activeTabClassName)) {
+          return;
+        }
+
+        var currentTarget = $('.' + activePanelClassName);
+        var target = $('.' + item.data('target'));
+
+        currentTarget.velocity('transition.slideUpOut', 200, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', 200)
+            .addClass(activePanelClassName);
+        });
+
+        item.siblings().removeClass(activeTabClassName);
+        item.addClass(activeTabClassName);
+      });
+
+      $('.post-toc a').on('click', function (e) {
+        e.preventDefault();
+        var offset = $(escapeSelector(this.getAttribute('href'))).offset().top;
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        });
+      });
+
+      // Expand sidebar on post detail page by default, when post has a toc.
+      var $tocContent = $('.post-toc-content');
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0 && isDesktop()) {
+        setTimeout(function () {
+          $('.sidebar-toggle').trigger('click');
+        }, 800);
+      }
+    });
+  </script>
+
+
+
 
   
 
@@ -1157,14 +1024,14 @@ process.on(<span class="string">"exit"</span>, <span class="function"><span clas
 
     <script type="text/javascript">
       var disqus_shortname = 'angelinazx';
-      var disqus_identifier = 'index.html';
-      var disqus_url = '';
+      var disqus_identifier = '2015/09/26/Understanding-node-process-2/';
+      var disqus_url = 'http://yoursite.com/2015/09/26/Understanding-node-process-2/';
 
       (function(){
         var dsq = document.createElement('script');
         dsq.type = 'text/javascript';
         dsq.async = true;
-        dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
         (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
       }());
     </script>

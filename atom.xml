@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2015-09-19T13:13:21.000Z</updated>
+  <updated>2015-09-26T10:04:27.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -13,6 +13,190 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[Understanding node process (2)]]></title>
+    <link href="http://yoursite.com/2015/09/26/Understanding-node-process-2/"/>
+    <id>http://yoursite.com/2015/09/26/Understanding-node-process-2/</id>
+    <published>2015-09-26T09:56:26.000Z</published>
+    <updated>2015-09-26T10:04:27.000Z</updated>
+    <content type="html"><![CDATA[<blockquote>
+<p>If you have been broken, mend yourself. Knowing that you will become more beautiful. And always think before you act. an apology cannot repair something you’ve done without thought.</p>
+</blockquote>
+<p>Last week we talked about multi process and process communication. Today we’re going to take a look at its stability.</p>
+<p>Having multi processes work together can improve the usage of our cups at some extend. But how it stability is? What if the process exits unexpected?</p>
+<p>node’s child_process does have some events available here so we can take advantage of those events listener to manage our process.</p>
+<h2 id="process_restart">process restart</h2><p>Let’s first listen to its exit event and create a new one when process exits.</p>
+<pre><code><span class="comment">// master.js</span>
+<span class="keyword">var</span> fork = <span class="built_in">require</span>(<span class="string">"child_process"</span>).fork,
+  cpus = <span class="built_in">require</span>(<span class="string">"os"</span>).cpus(),
+  server = <span class="built_in">require</span>(<span class="string">"net"</span>).createServer()
+  workers = {};
+
+server.listen(<span class="number">1337</span>);
+
+<span class="keyword">var</span> createWorker = <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+  <span class="keyword">var</span> worker = fork(<span class="string">"./test/worker.js"</span>);
+  worker.send(<span class="string">"server"</span>, server);
+  workers[worker.pid] = worker;
+  <span class="built_in">console</span>.log(<span class="string">"create worker. pid: "</span> + worker.pid);
+
+  worker.on(<span class="string">"exit"</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+    <span class="built_in">console</span>.log(<span class="string">"worker "</span> + worker.pid + <span class="string">" exited."</span>);
+    <span class="keyword">delete</span> workers[worker.pid];
+    createWorker();
+  });
+};
+
+<span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">0</span>; i&lt;cpus.length; i++) {
+  createWorker();
+}
+
+process.on(<span class="string">"exit"</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+  <span class="keyword">for</span> (pid <span class="keyword">in</span> workers) {
+    workers[pid].kill();
+  }
+});
+</code></pre><p>The code above defined a createWorker function. Every worker that is created by this function will listen to its own exit event and create a new worker process once it exits. If the master process self exits, all workers will be killed.<br>The worker.js would look like this:</p>
+<pre><code><span class="comment">//worker.js</span>
+<span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>);
+
+<span class="keyword">var</span> server = http.createServer(<span class="function"><span class="keyword">function</span><span class="params">(req,res)</span> </span>{
+  res.writeHead(<span class="number">200</span>, {<span class="string">'Content-Type'</span>: <span class="string">'text/plain'</span>});
+  res.end(<span class="string">'handled by child, pid is '</span> + process.pid + <span class="string">'\n'</span>);
+});
+
+process.on(<span class="string">'message'</span>, <span class="function"><span class="keyword">function</span><span class="params">(m, tcp)</span> </span>{
+  <span class="keyword">if</span>(m === <span class="string">'server'</span>) {
+    tcp.on(<span class="string">'connection'</span>, <span class="function"><span class="keyword">function</span><span class="params">(socket)</span> </span>{
+      server.emit(<span class="string">'connection'</span>, socket);
+    });
+  }
+});
+</code></pre><p>Run <code>node master.js</code> to create those process.</p>
+<pre><code>&gt; node master.js
+create worker. <span class="string">pid:</span> <span class="number">1089</span>
+create worker. <span class="string">pid:</span> <span class="number">1090</span>
+create worker. <span class="string">pid:</span> <span class="number">1091</span>
+create worker. <span class="string">pid:</span> <span class="number">1092</span>
+</code></pre><p>Now let’s kill a process to see what’s going on.</p>
+<pre><code>&gt; <span class="built_in">kill</span> <span class="number">1089</span>
+worker <span class="number">1089</span> exited.
+<span class="built_in">create</span> worker. pid: <span class="number">1280</span>
+</code></pre><p>Aha, one exits, one created.</p>
+<p>Here we just killed a process manually. In most cases, there may be some undetected bugs caused unexpected exit. So it’d better to use uncaughtException event to listen uncaught error and do some synchronous cleanup before shutting down the process. Here, for test use, we just exit process to see how it works.</p>
+<pre><code><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>);
+
+<span class="keyword">var</span> server = http.createServer(<span class="function"><span class="keyword">function</span><span class="params">(req,res)</span> </span>{
+  res.writeHead(<span class="number">200</span>, {<span class="string">'Content-Type'</span>: <span class="string">'text/plain'</span>});
+  res.end(<span class="string">'handled by child, pid is '</span> + process.pid + <span class="string">'\n'</span>);
+  <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">"throw exception"</span>);
+});
+
+<span class="keyword">var</span> worker;
+process.on(<span class="string">'message'</span>, <span class="function"><span class="keyword">function</span><span class="params">(m, tcp)</span> </span>{
+  <span class="keyword">if</span>(m === <span class="string">'server'</span>) {
+    worker = tcp;
+    tcp.on(<span class="string">'connection'</span>, <span class="function"><span class="keyword">function</span><span class="params">(socket)</span> </span>{
+      server.emit(<span class="string">'connection'</span>, socket);
+    });
+  }
+});
+
+process.on(<span class="string">'uncaughtException'</span>, <span class="function"><span class="keyword">function</span><span class="params">(err)</span> </span>{
+  process.send({signal: <span class="string">'suicide'</span>}); <span class="comment">//send a suicide signal to master process</span>
+  worker.close(<span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+    process.exit();
+  });
+});
+</code></pre><p>To simulate uncaught exception, we throw an error every time there is incomint request so that every time connect to the sever, a process will exit.</p>
+<p>Note that we want the master process to recreate a process once error happened instead of waiting for worker process exits to ensure incoming request would be handled as much as possible. This could be done by creating worker in message event.</p>
+<pre><code><span class="keyword">var</span> createWorker = <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+  <span class="keyword">var</span> worker = fork(<span class="string">"./test/worker.js"</span>);
+  worker.send(<span class="string">"server"</span>, server);
+  workers[worker.pid] = worker;
+  <span class="built_in">console</span>.log(<span class="string">"create worker. pid: "</span> + worker.pid);
+
+  worker.on(<span class="string">"message"</span>, <span class="function"><span class="keyword">function</span><span class="params">(message)</span> </span>{
+  <span class="keyword">if</span>(message.signal === <span class="string">'suicide'</span>) {
+      createWorker();
+  }
+  });
+
+  worker.on(<span class="string">"exit"</span>, <span class="function"><span class="keyword">function</span><span class="params">(code, sign)</span> </span>{
+  <span class="built_in">console</span>.log(<span class="string">"worker "</span> + worker.pid + <span class="string">" exited."</span>);
+  <span class="keyword">delete</span> workers[worker.pid];
+  });
+};
+</code></pre><h2 id="limit_restarts">limit restarts</h2><p>One more thing to do. If the error happens when creating the process, it is not in the case of uncaughtException. That would cause unlimit process restart. To avoid this unlimit restart, it’d better to limit the number of restarts during a period of time.</p>
+<pre><code><span class="comment">//master.js</span>
+<span class="keyword">var</span> fork = <span class="built_in">require</span>(<span class="string">"child_process"</span>).fork,
+  cpus = <span class="built_in">require</span>(<span class="string">"os"</span>).cpus(),
+  server = <span class="built_in">require</span>(<span class="string">"net"</span>).createServer()
+  workers = {},
+  limit = <span class="number">10</span>,<span class="comment">//restart limit</span>
+  restart = [];
+
+server.listen(<span class="number">1337</span>);
+
+<span class="keyword">var</span> isTooFrequently = <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+  <span class="keyword">var</span> time = <span class="built_in">Date</span>.now();
+  <span class="keyword">var</span> length = restart.push(time);
+  <span class="keyword">if</span>(length &gt; limit) {
+    restart = restart.slice(limit * -<span class="number">1</span>);
+  }
+  <span class="keyword">return</span> restart.length &gt;= limit &amp;&amp; restart[restart.length -<span class="number">1</span>] -restart[<span class="number">0</span>] &lt;during;
+}
+
+<span class="keyword">var</span> createWorker = <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+  <span class="keyword">if</span>(isTooFrequently()) {
+    process.emit(<span class="string">'giveup'</span>, length, during);
+    <span class="keyword">return</span>;
+  }
+  <span class="keyword">var</span> worker = fork(<span class="string">"worker.js"</span>);
+  worker.send(<span class="string">"server"</span>, server);
+  workers[worker.pid] = worker;
+  <span class="built_in">console</span>.log(<span class="string">"create worker. pid: "</span> + worker.pid);
+
+  worker.on(<span class="string">"message"</span>, <span class="function"><span class="keyword">function</span><span class="params">(message)</span> </span>{
+    <span class="keyword">if</span>(message.signal === <span class="string">'suicide'</span>) {
+      createWorker();
+    }
+  });
+
+  worker.on(<span class="string">"exit"</span>, <span class="function"><span class="keyword">function</span><span class="params">(code, sign)</span> </span>{
+    <span class="built_in">console</span>.log(<span class="string">"worker "</span> + worker.pid + <span class="string">" exited."</span>);
+    <span class="keyword">delete</span> workers[worker.pid];
+  });
+};
+
+<span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; cpus.length; i++) {
+  createWorker();
+}
+
+process.on(<span class="string">"exit"</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+  <span class="keyword">for</span> (pid <span class="keyword">in</span> workers) {
+    workers[pid].kill();
+  }
+});
+</code></pre><p>This isTooFrequently function does the judgement. It emits giveup event if restarts more than 10 times in a minute.</p>
+<h2 id="reference">reference</h2><ul>
+<li><a href="https://book.douban.com/subject/25768396/" target="_blank" rel="external">深入浅出nodejs</a></li>
+<li><a href="https://nodejs.org/api/process.html#process_signal_events" target="_blank" rel="external">Node.js v4.1.1 Documentation</a></li>
+</ul>
+]]></content>
+    <summary type="html">
+    <![CDATA[<blockquote>
+<p>If you have been broken, mend yourself. Knowing that you will become more beautiful. And always think before you act. an apo]]>
+    </summary>
+    
+      <category term="javascript" scheme="http://yoursite.com/tags/javascript/"/>
+    
+      <category term="node" scheme="http://yoursite.com/tags/node/"/>
+    
+      <category term="tech" scheme="http://yoursite.com/tags/tech/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[understanding node process(1)]]></title>
