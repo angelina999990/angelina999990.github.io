@@ -139,6 +139,7 @@
 </blockquote>
 <p>Last week we talked about multi process and process communication. Today we’re going to take a look at its stability.</p>
 <p>Having multi processes work together can improve the usage of our cups at some extend. But how it stability is? What if the process exits unexpected?</p>
+<a id="more"></a>
 <p>node’s child_process does have some events available here so we can take advantage of those events listener to manage our process.</p>
 <h2 id="process_restart">process restart</h2><p>Let’s first listen to its exit event and create a new one when process exits.</p>
 <pre><code><span class="comment">// master.js</span>
