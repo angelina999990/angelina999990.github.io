@@ -104,6 +104,94 @@
           
           
             
+              <a class="post-title-link" href="/2016/01/25/understanding-expressJS/">
+                understanding expressJS (1)
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on 2016-01-25
+        </span>
+
+        
+
+        
+          
+            <span class="post-comments-count">
+            &nbsp; | &nbsp;
+            <a href="/2016/01/25/understanding-expressJS/#comments" >
+              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/01/25/understanding-expressJS/"></span>
+            </a>
+          </span>
+          
+        
+      </div>
+    </div>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <blockquote>
+<p>Working like don’t need money, dancing like no one’s watching, love like never get hurt</p>
+</blockquote>
+<p>这里主要了解一下启动一个express 应用的过程</p>
+<pre><code><span class="comment">//express.js</span>
+function createApplication() {
+  <span class="keyword">var</span> <span class="keyword">app</span> = function(req, res, next) {
+    <span class="keyword">app</span>.handle(req, res, next);
+  };
+
+  mixin(<span class="keyword">app</span>, EventEmitter.prototype, false);
+  mixin(<span class="keyword">app</span>, proto, false);
+
+  <span class="keyword">app</span>.request = { __proto__: req, <span class="keyword">app</span>: <span class="keyword">app</span> };
+  <span class="keyword">app</span>.response = { __proto__: res, <span class="keyword">app</span>: <span class="keyword">app</span> };
+  <span class="keyword">app</span>.init();
+  <span class="keyword">return</span> <span class="keyword">app</span>;
+}
+</code></pre>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/01/25/understanding-expressJS/">
+              Read more &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <div class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </div>
+  </div>
+
+
+    
+      
+
+  <div class="post post-type-normal ">
+    <div class="post-header">
+
+      
+      
+        <h1 class="post-title">
+          
+          
+            
               <a class="post-title-link" href="/2015/09/26/Understanding-node-process-2/">
                 Understanding node process (2)
               </a>
@@ -695,7 +783,7 @@
         <div class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">7</span>
+              <span class="site-state-item-count">8</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
@@ -769,7 +857,7 @@
         <div class="copyright">
   
   &copy; &nbsp; 
-  2015
+  2016
   <span class="with-love">
     <i class="icon-heart"></i>
   </span>

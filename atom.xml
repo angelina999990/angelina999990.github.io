@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2015-09-26T10:05:57.000Z</updated>
+  <updated>2016-01-25T12:46:48.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -13,6 +13,96 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[understanding expressJS (1)]]></title>
+    <link href="http://yoursite.com/2016/01/25/understanding-expressJS/"/>
+    <id>http://yoursite.com/2016/01/25/understanding-expressJS/</id>
+    <published>2016-01-25T12:39:34.000Z</published>
+    <updated>2016-01-25T12:46:48.000Z</updated>
+    <content type="html"><![CDATA[<blockquote>
+<p>Working like don’t need money, dancing like no one’s watching, love like never get hurt</p>
+</blockquote>
+<p>这里主要了解一下启动一个express 应用的过程</p>
+<pre><code><span class="comment">//express.js</span>
+function createApplication() {
+  <span class="keyword">var</span> <span class="keyword">app</span> = function(req, res, next) {
+    <span class="keyword">app</span>.handle(req, res, next);
+  };
+
+  mixin(<span class="keyword">app</span>, EventEmitter.prototype, false);
+  mixin(<span class="keyword">app</span>, proto, false);
+
+  <span class="keyword">app</span>.request = { __proto__: req, <span class="keyword">app</span>: <span class="keyword">app</span> };
+  <span class="keyword">app</span>.response = { __proto__: res, <span class="keyword">app</span>: <span class="keyword">app</span> };
+  <span class="keyword">app</span>.init();
+  <span class="keyword">return</span> <span class="keyword">app</span>;
+}
+</code></pre><a id="more"></a>
+<p>express.js 实际上定义导出了一个createApplication的函数。express()实际上是得到了一个app的实例。</p>
+<pre><code><span class="keyword">mixin</span>(app, proto, <span class="literal">false</span>);
+</code></pre><p>这段代码的作用就是把application.js下定义的属性扩展到app上。</p>
+<pre><code><span class="comment">// bin/www</span>
+<span class="variable"><span class="keyword">var</span> server</span> = http.createServer(app);
+</code></pre><p>http.createServer 接受一个函数作为request事件的回调函数。实际下面这种写法也是一样的。</p>
+<pre><code>var <span class="keyword">server</span> = http.createServer();
+<span class="keyword">server</span>.on(<span class="string">'request'</span>, app);
+</code></pre><p>这里传到createServer的app就是上面得到的app实例（实际就是一个函数）。在接收到http请求时会执行app.handle 方法。app.handle 方法定义如下：</p>
+<pre><code><span class="comment">//application.js</span>
+app.handle = <span class="function"><span class="keyword">function</span><span class="params">(req, res, done)</span> </span>{
+  <span class="keyword">var</span> router = <span class="keyword">this</span>._router;
+
+  <span class="comment">// final handler</span>
+  done = done || finalhandler(req, res, {
+    env: <span class="keyword">this</span>.<span class="keyword">get</span>(<span class="string">'env'</span>),
+    onerror: logerror.bind(<span class="keyword">this</span>)
+  });
+
+  <span class="comment">// no routes</span>
+  <span class="keyword">if</span> (!router) {
+    debug(<span class="string">'no routes defined on app'</span>);
+    done();
+    <span class="keyword">return</span>;
+  }
+
+  router.handle(req, res, done);
+};
+</code></pre><p>this._router(即app._router)实际上是在app.lazyrouter方法中new的一个Router对象, 一般在定义中间件的时候会用到这个方法来给app添加一个_router属性。 所以上面的app.handle 其实是router.handle的一个代理方法，最终还是调用的router.handle()。至于具体处理请求的过程另写一遍具体介绍。</p>
+<p>回到www/bin文件</p>
+<pre><code>var <span class="keyword">port</span> = normalizePort(<span class="keyword">process</span>.env.<span class="keyword">PORT</span> || '<span class="number">3001</span>');
+app.set(<span class="attribute">'port</span>', <span class="keyword">port</span>);
+
+var server = http.createServer(app);
+
+server.listen(<span class="keyword">port</span>);
+server.<span class="keyword">on</span>(<span class="attribute">'error</span>', onError);
+server.<span class="keyword">on</span>(<span class="attribute">'listening</span>', onListening);
+</code></pre><p>这里首先增加port属性到app.js。 然后创建一个http server 并监听它的request, err, listening时间。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<blockquote>
+<p>Working like don’t need money, dancing like no one’s watching, love like never get hurt</p>
+</blockquote>
+<p>这里主要了解一下启动一个express 应用的过程</p>
+<pre><code><span class="comment">//express.js</span>
+function createApplication() {
+  <span class="keyword">var</span> <span class="keyword">app</span> = function(req, res, next) {
+    <span class="keyword">app</span>.handle(req, res, next);
+  };
+
+  mixin(<span class="keyword">app</span>, EventEmitter.prototype, false);
+  mixin(<span class="keyword">app</span>, proto, false);
+
+  <span class="keyword">app</span>.request = { __proto__: req, <span class="keyword">app</span>: <span class="keyword">app</span> };
+  <span class="keyword">app</span>.response = { __proto__: res, <span class="keyword">app</span>: <span class="keyword">app</span> };
+  <span class="keyword">app</span>.init();
+  <span class="keyword">return</span> <span class="keyword">app</span>;
+}
+</code></pre>]]>
+    
+    </summary>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[Understanding node process (2)]]></title>
