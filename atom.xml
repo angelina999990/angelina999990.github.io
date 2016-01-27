@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2016-01-27T16:11:25.000Z</updated>
+  <updated>2016-01-27T16:20:40.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -19,8 +19,11 @@
     <link href="http://yoursite.com/2016/01/28/understanding-express-2/"/>
     <id>http://yoursite.com/2016/01/28/understanding-express-2/</id>
     <published>2016-01-27T16:08:16.000Z</published>
-    <updated>2016-01-27T16:11:25.000Z</updated>
-    <content type="html"><![CDATA[<p>今天来了解整个接收和处理请求的过程。</p>
+    <updated>2016-01-27T16:20:40.000Z</updated>
+    <content type="html"><![CDATA[<blockquote>
+<p>have the courage to follow your heart and intuition. They somehow already know what you truly want to become. Everything else is secondary</p>
+</blockquote>
+<p>今天来了解整个接收和处理请求的过程。</p>
 <p><a href="http://angelina999990.gitcafe.io/2016/01/25/understanding-expressJS/" target="_blank" rel="external">上一章</a>说了当接收到一个请求的时候是通过这个函数 <code>app.handle(req, res, next);</code> 来处理请求的。今天来说一下具体一个请求的处理过程。</p>
 <p>收到请求会执行<code>app.handle(req, res, next)</code>，具体代码如下：</p>
 <a id="more"></a>
@@ -256,7 +259,10 @@ methods.concat('all').forEach(function(<span class="keyword">method</span>){
 <p><img src="http://d.pcs.baidu.com/thumbnail/c9ddf27e2239ce53983f5628faab78de?fid=571110063-250528-341365159016922&amp;time=1453910400&amp;sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-89IEUyBrNLkIrRrkm0IX4DReUj4%3D&amp;rt=sh&amp;expires=2h&amp;r=914482467&amp;sharesign=unknown&amp;size=c710_u500&amp;quality=100" alt="http请求处理过程"></p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<p>今天来了解整个接收和处理请求的过程。</p>
+    <![CDATA[<blockquote>
+<p>have the courage to follow your heart and intuition. They somehow already know what you truly want to become. Everything else is secondary</p>
+</blockquote>
+<p>今天来了解整个接收和处理请求的过程。</p>
 <p><a href="http://angelina999990.gitcafe.io/2016/01/25/understanding-expressJS/">上一章</a>说了当接收到一个请求的时候是通过这个函数 <code>app.handle(req, res, next);</code> 来处理请求的。今天来说一下具体一个请求的处理过程。</p>
 <p>收到请求会执行<code>app.handle(req, res, next)</code>，具体代码如下：</p>]]>
     
