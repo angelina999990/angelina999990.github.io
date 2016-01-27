@@ -18,7 +18,7 @@
 
 
 
-  <meta name="keywords" content="front-end,tech," />
+  <meta name="keywords" content="express,javascript,node," />
 
 
 
@@ -31,7 +31,7 @@
 
 
 
-  <title> gulp学习初体验 // Angelina ZX </title>
+  <title> understanding express(2)之expressJS接收和处理http请求过程 // Angelina ZX </title>
 </head>
 
 <body>
@@ -102,7 +102,7 @@
           
           
             
-              gulp学习初体验
+              understanding express(2)之expressJS接收和处理http请求过程
             
           
         </h1>
@@ -110,7 +110,7 @@
 
       <div class="post-meta">
         <span class="post-time">
-          Posted on 2015-06-21
+          Posted on 2016-01-27
         </span>
 
         
@@ -119,8 +119,8 @@
           
             <span class="post-comments-count">
             &nbsp; | &nbsp;
-            <a href="/2015/06/21/gulp学习初体验/#comments" >
-              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015/06/21/gulp学习初体验/"></span>
+            <a href="/2016/01/28/understanding-express-2/#comments" >
+              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/01/28/understanding-express-2/"></span>
             </a>
           </span>
           
@@ -134,69 +134,240 @@
       
 
       
-        <p>花了一天的时间，把gulp的一些基本用法过了一遍。总算对其有了些了解。记录下学习中的不解，也算对这次的学习一个总结。</p>
-<p>首先介绍一下gulp，gulp是一个前端构建工具，利用它可以在项目开发过程中自动化执行任务。有赖于其强大的插件系统，我们可以利用gulp完成很多任务，例如执行JSHint，编译stylus，更新版本号等。</p>
+        <p>今天来了解整个接收和处理请求的过程。</p>
+<p><a href="http://angelina999990.gitcafe.io/2016/01/25/understanding-expressJS/" target="_blank" rel="external">上一章</a>说了当接收到一个请求的时候是通过这个函数 <code>app.handle(req, res, next);</code> 来处理请求的。今天来说一下具体一个请求的处理过程。</p>
+<p>收到请求会执行<code>app.handle(req, res, next)</code>，具体代码如下：</p>
 <a id="more"></a>
-<h2 id="安装gulp：">安装gulp：</h2><p>全局安装：</p>
-<pre><code>npm <span class="keyword">install</span> -g gulp
-</code></pre><p>项目安装：</p>
-<pre><code>npm install --<span class="built_in">save</span>-<span class="built_in">dev</span> gulp
-</code></pre><p>—save-dev 安装包将在开发环境下安装，版本信息写入package.json的devDependencies下。</p>
-<p>gulp任务都定义在gulpfile.js中，可以在终端运行gulp命令来执行。</p>
-<h2 id="gulp任务">gulp任务</h2><p>加载gulp模块</p>
-<pre><code><span class="reserved">var</span> gulp = <span class="built_in">require</span>(<span class="string">'gulp'</span>);
-</code></pre><p>其他gulp插件的加载也是一样。</p>
-<p>下面是一段编译stylus的gulp task代码，用来简单解释一下gulp的工作流程。</p>
-<pre><code>gulp.task(<span class="string">'stylus'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
-  gulp.src(<span class="string">'./assets/stylus/style.styl'</span>)
-      .pipe(stylus())
-      .pipe(gulp.dest(<span class="string">'./assets/stylesheets'</span>));
-});
-</code></pre><p>gulp.task(taskName, excutor)用来定义任务。需要任务名和执行函数两个参数。执行函数也可以是多个任务。</p>
-<p>gulp.task(‘build’, [‘task’, ‘anotherTask’]);</p>
-<p>但是这些任务不是顺序执行的。要保证一个任务先于另一个执行可以：</p>
-<pre><code>gulp.task(<span class="string">'taskTwo'</span>, [<span class="string">'taskOne'</span>], <span class="function"><span class="keyword">function</span> <span class="params">()</span> </span>{
-   <span class="comment">// taskTwo</span>
-});
-</code></pre><p>taskTwo 会在 taskOne执行完后再执行。</p>
-<p>gulp.src()函数用来匹配文件，创建一个对象流来代表这些文件，之后的操作都是以这些文件为对象进行操作。pipe顾名思义就是管道的意思， stylus()返回修改后的文件对象放入流中，这些输出的文件随着管道被输入到gulp.dest()函数中并保持下来。</p>
-<p>最后不要忘记在文件头部加载gulp-stylus模块。</p>
-<h2 id="运行gulp">运行gulp</h2><p>终端执行 <code>$ gulp</code> 会报错，因为gulp默认会执行default 任务。需要在gulpfile.js内定义此任务</p>
-<pre><code>gulp.task(<span class="string">'default'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
-  <span class="comment">//deal with default task</span>
-})
-</code></pre><p>如果要运行指定任务</p>
-<pre><code><span class="variable">$ </span>gulp taskName
-</code></pre><h2 id="watching_files">watching files</h2><p>用gulp来监听文件的修改状态非常方便。我们来定义一个watch任务看一下</p>
-<pre><code>gulp.task(<span class="string">'watch'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
-  gulp.watch(<span class="string">'./assets/stylus/*.styl'</span>, [<span class="string">'stylus'</span>]);
-});
-</code></pre><p>现在当改变styl文件时就会执行stylus任务。</p>
-<p>当然仅仅是watch是不够的，我们还希望在文件修改的同时浏览器能同步更新。browserSync插件就可以做到。当改变代码的时候，BrowserSync会重新加载页面，如果是css文件，会直接添加进css中，页面并不需要再次刷新。这样我们修改前端代码时就不需要每次都手动刷新浏览器。</p>
-<pre><code><span class="tag">gulp</span><span class="class">.task</span>(<span class="string">'browser-sync'</span>, <span class="function">function</span>(){
-  <span class="tag">browserSync</span><span class="class">.init</span>(null, {
-    <span class="attribute">proxy</span>: <span class="string">'http://localhost:3000'</span>,
-    <span class="attribute">files</span>: [<span class="string">'assets/stylesheets/*.css'</span>],
-    <span class="attribute">browser</span>: <span class="string">'google-chrome'</span>,
-    <span class="attribute">port</span>: <span class="number">7000</span>,
-    <span class="attribute">reloadOnRestart</span>: false
-  });
-});
-<span class="tag">gulp</span><span class="class">.task</span>(<span class="string">'default'</span>, [<span class="string">'browser-sync'</span>]);
-</code></pre><p>gulp运行时会默认执行browser-sync任务。启动browserSync，监听css文件的改变并在chrome中加载更新的部分。</p>
-<blockquote>
-<p> proxy: vhost url<br> files: 监听改变的文件<br> port: browser侦测改变的端口</p>
-</blockquote>
-<p>browserSync主要监听浏览器端的改变，要监听更新服务端需要用到nodemon</p>
-<pre><code>gulp.task(<span class="string">'nodemon'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
-  <span class="keyword">return</span> nodemon({
-    script: <span class="string">'bin/www'</span>,
-    ext: <span class="string">'js'</span>
-  }).on(<span class="string">'start'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
+<pre><code><span class="comment">//application.js</span>
+app.handle = <span class="function"><span class="keyword">function</span><span class="params">(req, res, done)</span> </span>{
+  <span class="keyword">var</span> router = <span class="keyword">this</span>._router;
 
+  <span class="comment">// final handler</span>
+  done = done || finalhandler(req, res, {
+    env: <span class="keyword">this</span>.<span class="keyword">get</span>(<span class="string">'env'</span>),
+    onerror: logerror.bind(<span class="keyword">this</span>)
   });
+
+  <span class="comment">// no routes</span>
+  <span class="keyword">if</span> (!router) {
+    debug(<span class="string">'no routes defined on app'</span>);
+    done();
+    <span class="keyword">return</span>;
+  }
+
+  router.handle(req, res, done);
+};
+</code></pre><p>这个函数接收三个参数req，res，next。 其中next就是上面的done, 默认是finalhandler。具体可以看<a href="https://github.com/pillarjs/finalhandler" target="_blank" rel="external">这里</a>。然后调用router.handle()开始链式调用。</p>
+<p>router.handler 代码比较长，先看结构：</p>
+<pre><code><span class="comment">// router/index.js</span>
+proto.handle = <span class="function"><span class="keyword">function</span><span class="params">(req, res, done)</span> </span>{
+  ...... <span class="comment">//定义一些基本变量</span>
+
+  next();
+
+  <span class="function"><span class="keyword">function</span> <span class="title">next</span><span class="params">(err)</span> </span>{
+    ......
+  }
+
+  <span class="function"><span class="keyword">function</span> <span class="title">trim_prefix</span><span class="params">(layer, layerError, layerPath, path)</span> </span>{
+    ...... <span class="comment">//对路径做些处理再调用layer.handle_request</span>
+  }
+};
+</code></pre><p>其中通过递归调用next()来遍历stack(存放中间件的栈，是一个数组)看是否有匹配的中间件。在proto.handle的开头就定义了idx=0，表示当前中间件索引。在next()中首先判断当前中间件索引是否大于stack.length。 如果是说明已遍历完，直接执行done()。</p>
+<pre><code>// <span class="keyword">function</span> next()
+<span class="keyword">if</span> (idx &gt;= stack.length) {
+  <span class="built_in">set</span>Immediate(<span class="keyword">done</span>, layerError);
+  <span class="built_in">return</span>;
+}
+</code></pre><p>否则的话执行while循环找到第一个可以处理http请求的中间件。 来看一下while的主要代码：</p>
+<pre><code>// function next()
+<span class="keyword">var</span> layer;
+<span class="keyword">var</span> match;
+<span class="keyword">var</span> route;
+
+<span class="keyword">while</span> (match !== <span class="literal">true</span> &amp;&amp; idx &lt; stack.length) {
+  layer = stack[idx++];
+  match = matchLayer(layer, path);  //调用了layer.match 方法
+  route = layer.route;
+
+  <span class="keyword">if</span> (typeof match !== 'boolean') {
+    layerError = layerError || match;
+  }
+
+  <span class="keyword">if</span> (match !== <span class="literal">true</span>) {
+    <span class="keyword">continue</span>; // 不匹配，退出本次循环。
+  }
+
+  <span class="keyword">if</span> (!route) {
+    <span class="keyword">continue</span>;
+  }
+
+  <span class="keyword">if</span> (layerError) {
+    match = <span class="literal">false</span>;
+    <span class="keyword">continue</span>;
+  }
+
+  <span class="keyword">var</span> <span class="keyword">method</span> = req.<span class="keyword">method</span>;
+  <span class="keyword">var</span> has_method = route._handles_method(<span class="keyword">method</span>);
+
+  <span class="keyword">if</span> (!has_method &amp;&amp; <span class="keyword">method</span> === '<span class="type">OPTIONS</span>') {
+    appendMethods(options, route._options());
+  }
+
+  <span class="keyword">if</span> (!has_method &amp;&amp; <span class="keyword">method</span> !== '<span class="type">HEAD</span>') {
+    match = <span class="literal">false</span>;
+    <span class="keyword">continue</span>;
+  }
+}
+</code></pre><p>通过matchLayer确定当前layer是否与当前路径匹配。不匹配则直接结束本次循环进入下一个中间件的判断。match为true但是layer.route不存在，说明不是路由中间件，结束本次循环，由于此时match为true会结束while循环直接进入下面的步骤（这个稍后说）。 如果route存在，即是路由中间件，再判断该路由可处理的http方法是否与请求的http方法一致。如果不一致则根据其method是否为options或head做相应处理，一致则不再对match做修改，这样执行下次while循环的时候由于match为true会结束循环进入下面的步骤。</p>
+<pre><code>// <span class="function"><span class="keyword">function</span> <span class="title">next</span><span class="params">()</span></span> 结束<span class="keyword">while</span>循环后的部分
+
+<span class="keyword">if</span> (match !== <span class="keyword">true</span>) {
+   //结束循环后match仍然为<span class="keyword">false</span>, 说明是遍历完stack, 没有匹配的中间件
+  <span class="keyword">return</span> done(layerError);
+}
+
+<span class="keyword">if</span> (route) {
+  req.route = route;
+}
+
+req.params = self.mergeParams
+  ? mergeParams(layer.params, parentParams)
+  : layer.params;
+var layerPath = layer.path;
+
+self.process_params(layer, paramcalled, req, res, <span class="function"><span class="keyword">function</span> <span class="params">(err)</span></span> {
+  <span class="keyword">if</span> (err) {
+    <span class="keyword">return</span> <span class="built_in">next</span>(layerError || err);
+  }
+
+  <span class="keyword">if</span> (route) {
+    //<span class="built_in">next</span>作为回调函数传入handle_request,形成一个闭包，再在handle_request中调用<span class="built_in">next</span>()的时候idx的值仍然是上一次退出<span class="keyword">while</span>循环的值
+    <span class="keyword">return</span> layer.handle_request(req, res, <span class="built_in">next</span>);
+  }
+
+  //对路径做些处理再调用layer.handle_request
+  trim_prefix(layer, layerError, layerPath, path);
 });
-</code></pre><p>项目开发是基于express， 这段代码会执行bin/www文件运行服务端，并监听js文件的改变，每次改变重启服务。</p>
+</code></pre><p>这部分首先进行一些参数预处理，如果为路由中间件就直接调用layer.handle_request，否则先对路径做些处理再调用layer.handle_request。下面是layer.handle_request的代码：</p>
+<pre><code><span class="comment">// router/layer.js</span>
+Layer.prototype.handle_request = <span class="function"><span class="keyword">function</span> <span class="title">handle</span><span class="params">(req, res, next)</span> </span>{
+  <span class="keyword">var</span> fn = <span class="keyword">this</span>.handle;
+
+  <span class="keyword">if</span> (fn.length &gt; <span class="number">3</span>) {
+    <span class="comment">// not a standard request handler</span>
+    <span class="keyword">return</span> next();
+  }
+
+  <span class="keyword">try</span> {
+    fn(req, res, next);
+  } <span class="keyword">catch</span> (err) {
+    next(err);
+  }
+};
+</code></pre><p>layer.handle_request会在Router.handle和route.dispatch中调用。注意若是从Router.handle调用的，next是Router.handle里定义的next，若是从route.dispatch调用的，next是dispatch里定义的next。 不同的next遍历的对象有所不同。举个🌰：</p>
+<pre><code><span class="comment">//app.js</span>
+    <span class="keyword">var</span> user = <span class="keyword">require</span>(<span class="string">'user'</span>);
+    <span class="keyword">var</span> app = express();
+
+    app.<span class="keyword">use</span>(<span class="string">'/index'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
+        <span class="comment">//do something</span>
+    })
+    app.<span class="keyword">use</span>(<span class="string">'/user'</span>, user);
+
+
+<span class="comment">//user.js</span>
+    <span class="keyword">var</span> userRouter = <span class="keyword">require</span>(<span class="string">'express'</span>).Router();
+    <span class="keyword">var</span> checkAuth = <span class="function"><span class="keyword">function</span><span class="params">(req, res, next)</span></span>{
+        <span class="comment">//... check auth</span>
+        next()
+    };
+    <span class="keyword">var</span> getList = <span class="function"><span class="keyword">function</span><span class="params">(req, res, next)</span> </span>{
+        <span class="comment">//... get user list</span>
+    }
+
+    userRouter.get(<span class="string">'/list'</span>, checkAuth, getList);
+    module.exports = userRouter;
+</code></pre><p>app.js中的两个app.use其实是调用router.use创建了两个layer对象并将其添加到app._router.stack中，以下简称Router。Router.stack应该是类似这样的<code>[ layer1, layer2 ]</code>。 其中layer2实际上是express.Router()的导出对象, 在app.use方法中会视为一个子app封装一层。像这样：</p>
+<pre><code><span class="comment">//application.js app.use()</span>
+<span class="function"><span class="keyword">function</span> <span class="title">mounted_app</span><span class="params">(req, res, next)</span> </span>{
+  <span class="keyword">var</span> orig = req.app;
+  fn.handle(req, res, <span class="function"><span class="keyword">function</span> <span class="params">(err)</span> </span>{
+    req.__proto__ = orig.request;
+    res.__proto__ = orig.response;
+    next(err);
+});
+</code></pre><p>这里的fn实际上就是<code>app.use(&#39;/user&#39;,user)</code>中的user（即user.js中导出的Router）。完整代码可查看application.js 的app.use。</p>
+<p>上面user.js中调用userRouter.get方法创建一个新的route和layer（这里暂时叫newLayer, 这个layer会被push到userRouter.stack中）， 再调用route.get方法把checkAuth和getList添加到route.stack中，所以该route的stack应该类似这样 <code>[ layer3, layer4 ]</code>，userRouter.stack是这样的<code>[ newLayer ]</code>。 这里附上Router.route和 Router.VERB的代码。</p>
+<pre><code>// router/index.js
+proto.route = function(path){
+  <span class="keyword">var</span> route = new <span class="type">Route</span>(path);
+
+  <span class="keyword">var</span> layer = new <span class="type">Layer</span>(path, {
+    sensitive: this.caseSensitive,
+    strict: this.strict,
+    <span class="keyword">end</span>: <span class="literal">true</span>
+  }, route.dispatch.<span class="keyword">bind</span>(route)); //layer.handle=route.dispatch
+
+  layer.route = route;
+
+  this.stack.push(layer);
+  <span class="keyword">return</span> route;
+};
+
+// 创建 <span class="type">Router</span><span class="comment">#VERB functions</span>
+methods.concat('all').forEach(function(<span class="keyword">method</span>){
+  proto[<span class="keyword">method</span>] = function(path){
+
+    // 调用proto.route new 一个route对象。
+    <span class="keyword">var</span> route = this.route(path)
+
+    //在route.<span class="type">VERB</span>或route.all中会把传入的fn添加到该route的stack中
+    route[<span class="keyword">method</span>].apply(route, slice.call(arguments, <span class="number">1</span>));
+    <span class="keyword">return</span> this;
+  };
+});
+</code></pre><p>所以当收到一个http请求(eg. <a href="http://host.com/user/list)，" target="_blank" rel="external">http://host.com/user/list)，</a> 首先执行app.handle(), 在 <code>[layer1, layer2]</code>中查找匹配，当查找的layer2的时候，路径匹配且layer2不是一个路由中间件，进入到layer.handle_request调用layer.handle(这里的layer.handle就是mounted_app方法),里面又调用fn.handle就是执行userRouter.handle方法，又继续在userRouter.stack（<code>[ newLayer ]</code>）中查找匹配, newLayer路径与请求路径匹配且是路由中间件，进入layer.handle_request执行layer.handle，注意这里的layer.handle是route.dispatch，因为在Router.VERB中创建layer时是<code>new Layer(path, option, route.dispatch.bind(route))</code>。所以就会在route.stack(<code>[ layer3, layer4 ]</code>)中查找匹配。附上route.dispatch代码：</p>
+<pre><code><span class="type">Route</span>.prototype.dispatch = function(req, res, done){
+  <span class="keyword">var</span> idx = <span class="number">0</span>;
+  <span class="keyword">var</span> stack = this.stack;
+  <span class="keyword">if</span> (stack.length === <span class="number">0</span>) {
+    <span class="keyword">return</span> done();
+  }
+
+  <span class="keyword">var</span> <span class="keyword">method</span> = req.<span class="keyword">method</span>.toLowerCase();
+  <span class="keyword">if</span> (<span class="keyword">method</span> === 'head' &amp;&amp; !this.methods['head']) {
+    <span class="keyword">method</span> = 'get';
+  }
+
+  req.route = this;
+
+  next();
+
+  function next(err) {
+    <span class="keyword">if</span> (err &amp;&amp; err === 'route') {
+      <span class="keyword">return</span> done();
+    }
+
+    <span class="keyword">var</span> layer = stack[idx++];
+    <span class="keyword">if</span> (!layer) {
+      <span class="keyword">return</span> done(err);
+    }
+
+    <span class="keyword">if</span> (layer.<span class="keyword">method</span> &amp;&amp; layer.<span class="keyword">method</span> !== <span class="keyword">method</span>) {
+      <span class="keyword">return</span> next(err);
+    }
+
+    <span class="keyword">if</span> (err) {
+      layer.handle_error(err, req, res, next);
+    } <span class="keyword">else</span> {
+      layer.handle_request(req, res, next);
+    }
+  }
+};
+</code></pre><p>可以看到这里的idx是0，与Router.handle()中的idx不同，route.dispatch是在当前route.stack中遍历匹配。在上面的🌰中route.stack就是<code>[ layer3, layer4 ]</code>。处理逻辑与Router.handle类似，idx是当前下表，stack是当前路由处理函数列表，递归调用next。 这里next方法判断当前layer是否存在，不存在或方法不匹配调用done, 否则根据err值执行handle_request或handle_error。例子中的layer3路径和method都匹配，执行layer3.handle_request调用this.handle即checkauth方法，如果通过验证就会执行next(),注意这时的next是dispatch中定义的next方法。此时idx指向layer4, 依然匹配，继续执行getList方法。 getList执行后若不再调用next(), 则处理请求的过程结束， 否则继续执行next, 此时route.stack遍历完再找不到layer会执行done(err) 返回到<code>[newLayer]</code>层面，userRouter.stack也遍历完（userRouter.handle中的idx此时为1，大于<code>[newLayer].length</code>）于是又调用done, 回到上层的Router.stack中(<code>[layer1, layer2]</code>)依次类推。当热由于getList处理完请求后直接reponse所以不会再调用next()。 这里只是分析下如果继续调用next的行为。</p>
+<p>表述得可能不太清楚，看图：</p>
+<p><img src="http://d.pcs.baidu.com/thumbnail/c9ddf27e2239ce53983f5628faab78de?fid=571110063-250528-341365159016922&amp;time=1453910400&amp;sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-89IEUyBrNLkIrRrkm0IX4DReUj4%3D&amp;rt=sh&amp;expires=2h&amp;r=914482467&amp;sharesign=unknown&amp;size=c710_u500&amp;quality=100" alt="http请求处理过程"></p>
 
       
     </div>
@@ -205,9 +376,11 @@
       
         <div class="post-tags">
           
-            <a href="/tags/front-end/"> #front-end </a>
+            <a href="/tags/express/"> #express </a>
           
-            <a href="/tags/tech/"> #tech </a>
+            <a href="/tags/javascript/"> #javascript </a>
+          
+            <a href="/tags/node/"> #node </a>
           
         </div>
       
@@ -216,13 +389,11 @@
         <div class="post-nav">
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2015/08/13/What-we-lost/">What we lost?</a>
-            
           </div>
 
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2015/05/03/双线部署遇到的问题/">双线部署遇到的问题</a>
+              <a href="/2016/01/25/understanding-expressJS/">understanding expressJS (1)</a>
             
           </div>
         </div>
@@ -350,7 +521,7 @@
           <div class="post-toc">
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#安装gulp："><span class="nav-number">1.</span> <span class="nav-text">安装gulp：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gulp任务"><span class="nav-number">2.</span> <span class="nav-text">gulp任务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#运行gulp"><span class="nav-number">3.</span> <span class="nav-text">运行gulp</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#watching_files"><span class="nav-number">4.</span> <span class="nav-text">watching files</span></a></li></ol></div>
+              <p class="post-toc-empty">This post does not have a Table Of Contents</p>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator"></div>
@@ -923,8 +1094,8 @@
 
     <script type="text/javascript">
       var disqus_shortname = 'angelinazx';
-      var disqus_identifier = '2015/06/21/gulp学习初体验/';
-      var disqus_url = 'http://yoursite.com/2015/06/21/gulp学习初体验/';
+      var disqus_identifier = '2016/01/28/understanding-express-2/';
+      var disqus_url = 'http://yoursite.com/2016/01/28/understanding-express-2/';
 
       (function(){
         var dsq = document.createElement('script');
