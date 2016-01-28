@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2016-01-27T16:20:40.000Z</updated>
+  <updated>2016-01-28T02:28:56.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -19,9 +19,9 @@
     <link href="http://yoursite.com/2016/01/28/understanding-express-2/"/>
     <id>http://yoursite.com/2016/01/28/understanding-express-2/</id>
     <published>2016-01-27T16:08:16.000Z</published>
-    <updated>2016-01-27T16:20:40.000Z</updated>
+    <updated>2016-01-28T02:28:56.000Z</updated>
     <content type="html"><![CDATA[<blockquote>
-<p>have the courage to follow your heart and intuition. They somehow already know what you truly want to become. Everything else is secondary</p>
+<p>Have the courage to follow your heart and intuition. They somehow already know what you truly want to become. Everything else is secondary</p>
 </blockquote>
 <p>今天来了解整个接收和处理请求的过程。</p>
 <p><a href="http://angelina999990.gitcafe.io/2016/01/25/understanding-expressJS/" target="_blank" rel="external">上一章</a>说了当接收到一个请求的时候是通过这个函数 <code>app.handle(req, res, next);</code> 来处理请求的。今天来说一下具体一个请求的处理过程。</p>
@@ -257,10 +257,13 @@ methods.concat('all').forEach(function(<span class="keyword">method</span>){
 </code></pre><p>可以看到这里的idx是0，与Router.handle()中的idx不同，route.dispatch是在当前route.stack中遍历匹配。在上面的🌰中route.stack就是<code>[ layer3, layer4 ]</code>。处理逻辑与Router.handle类似，idx是当前下表，stack是当前路由处理函数列表，递归调用next。 这里next方法判断当前layer是否存在，不存在或方法不匹配调用done, 否则根据err值执行handle_request或handle_error。例子中的layer3路径和method都匹配，执行layer3.handle_request调用this.handle即checkauth方法，如果通过验证就会执行next(),注意这时的next是dispatch中定义的next方法。此时idx指向layer4, 依然匹配，继续执行getList方法。 getList执行后若不再调用next(), 则处理请求的过程结束， 否则继续执行next, 此时route.stack遍历完再找不到layer会执行done(err) 返回到<code>[newLayer]</code>层面，userRouter.stack也遍历完（userRouter.handle中的idx此时为1，大于<code>[newLayer].length</code>）于是又调用done, 回到上层的Router.stack中(<code>[layer1, layer2]</code>)依次类推。当热由于getList处理完请求后直接reponse所以不会再调用next()。 这里只是分析下如果继续调用next的行为。</p>
 <p>表述得可能不太清楚，看图：</p>
 <p><img src="http://d.pcs.baidu.com/thumbnail/c9ddf27e2239ce53983f5628faab78de?fid=571110063-250528-341365159016922&amp;time=1453910400&amp;sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-89IEUyBrNLkIrRrkm0IX4DReUj4%3D&amp;rt=sh&amp;expires=2h&amp;r=914482467&amp;sharesign=unknown&amp;size=c710_u500&amp;quality=100" alt="http请求处理过程"></p>
+<h3 id="Reference">Reference</h3><ul>
+<li><a href="https://github.com/syaning/understanding-express" target="_blank" rel="external">express源码解析</a></li>
+</ul>
 ]]></content>
     <summary type="html">
     <![CDATA[<blockquote>
-<p>have the courage to follow your heart and intuition. They somehow already know what you truly want to become. Everything else is secondary</p>
+<p>Have the courage to follow your heart and intuition. They somehow already know what you truly want to become. Everything else is secondary</p>
 </blockquote>
 <p>今天来了解整个接收和处理请求的过程。</p>
 <p><a href="http://angelina999990.gitcafe.io/2016/01/25/understanding-expressJS/">上一章</a>说了当接收到一个请求的时候是通过这个函数 <code>app.handle(req, res, next);</code> 来处理请求的。今天来说一下具体一个请求的处理过程。</p>
