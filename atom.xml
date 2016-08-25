@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2016-01-28T02:28:56.000Z</updated>
+  <updated>2016-08-25T03:32:24.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -13,6 +13,172 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[理解javascript this关键字的在不同情况下的表现]]></title>
+    <link href="http://yoursite.com/2016/08/25/understanding-javascript-this/"/>
+    <id>http://yoursite.com/2016/08/25/understanding-javascript-this/</id>
+    <published>2016-08-25T03:26:26.000Z</published>
+    <updated>2016-08-25T03:32:24.000Z</updated>
+    <content type="html"><![CDATA[<blockquote>
+<p>The best time for new beginnings is now</p>
+</blockquote>
+<p>this的指向问题在javascript中一直比较困扰我。 一下总结了几种情况下this分别指向的内容。 总的来说就是根据执行环境或函数的执行方式不同，this的值有所不同。<br>这里假设执行环境是在浏览器端，所有的全局对象都是指window对象</p>
+<a id="more"></a>
+<h2 id="定义在全局模式下">定义在全局模式下</h2><pre><code>{
+    <span class="built_in">console</span>.log(<span class="keyword">this</span> === <span class="built_in">window</span>); <span class="regexp">//</span><span class="literal">true</span>; 未定义任何函数的情况下，<span class="keyword">this</span> 指向<span class="built_in">window</span>
+}
+</code></pre><h2 id="定义在函数内部">定义在函数内部</h2><p>根据函数的调用方式不同，this的值可能不同</p>
+<h3 id="普通调用">普通调用</h3><pre><code>{
+    a = <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+        <span class="keyword">return</span> <span class="keyword">this</span>;
+    }
+
+    b = <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+<span class="pi">        "use strict"</span>
+        <span class="keyword">return</span> <span class="keyword">this</span>;
+    }
+
+    a(); <span class="comment">// 非严格模式： this指向全局对象</span>
+    b(); <span class="comment">// 严格模式： this = undefine;</span>
+}
+</code></pre><h3 id="对象内部调用">对象内部调用</h3><p>需要注意的是this的指向总是与他最近的执行环境相关。 看下面的列子：</p>
+<pre><code>{
+    o = {
+        a: <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+            <span class="keyword">return</span> <span class="keyword">this</span>;
+        },
+
+        b: {
+            c: <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+                <span class="keyword">return</span> <span class="keyword">this</span>;
+            }
+        }
+    };
+
+    o.a(); <span class="comment">//作为对象的方法被调用， this指向调用该方法的对象本身，即o</span>
+
+    o.b.c(); <span class="comment">// c是作为o.b这个对象的方法被调用的，所以c返回的this是指向o.b这个对象的</span>
+
+
+    <span class="comment">//再看下面的例子</span>
+
+    d = o.b.c;
+    d(); <span class="comment">// d是在全局环境下调用的，所以返回的this是指向window对象的</span>
+}
+</code></pre><p>但是如果是arrow function 定义的函数， 其this会被绑定到该函数外层执行环境的this上， 看下面的例子：</p>
+<pre><code>{
+    x = <span class="number">10</span>;
+    o2 = {
+
+        <span class="attribute">x</span>: <span class="keyword">this</span>.x, <span class="regexp">//</span> 此时的<span class="keyword">this</span>是指向<span class="built_in">window</span>对象的
+
+        <span class="attribute">e</span>: <span class="function"><span class="params">( () =&gt; <span class="keyword">this</span>)</span>,
+
+        f: function<span class="params">()</span> {
+            var g = (<span class="params">()</span> =&gt;</span> {
+                <span class="built_in">console</span>.log(<span class="keyword">this</span>.e());
+                <span class="keyword">return</span> <span class="keyword">this</span>;
+            });
+            <span class="keyword">return</span> g();
+        }
+    };
+
+    o2.e(); <span class="regexp">//</span><span class="built_in">window</span>
+    o2.f(); <span class="regexp">//</span>Object{}
+}
+</code></pre><p>执行o2.e()返回window对象。因为e的外层是o2, o2的this指向Global，所以e() 返回的this 是window对象。</p>
+<p>o2.f 内部又定义了g 函数。该函数验证了两件事：</p>
+<ol>
+<li>g 本身的this指向；</li>
+<li>不同环境下调用e(), 其this返回值会不会变化；</li>
+</ol>
+<p>因为g的外层是f函数，f的this是指向o2对象本身的。所以g()返回的this是o2对象本身。也正是因为如此，如果 <code>console.log(this.e())</code> 才能够成功调用e(), 如果this不是执行o2, 那么 <code>console.log(this.e())</code> 就会报 <code>Uncaught TypeError: this.e is not a function(…)</code>。 另外this.e()的返回结果仍然是window对象，这就说明了arrow function 的另一个特性，arrow function 的this在创建的时候就指定了(即其外层执行环境的this上)。当然如果可以指定其外层执行环境，那就另当别论了。</p>
+<pre><code><span class="collection">{
+    // 这里修改一下o2.f
+    o2.f = function<span class="list">()</span> <span class="collection">{
+        var g = <span class="list">(<span class="list">()</span> =&gt; <span class="collection">{
+            return this;
+        }</span>)</span><span class="comment">;</span>
+        return g<span class="list">()</span><span class="comment">;</span>
+    }</span><span class="comment">;</span>
+
+    o3 = <span class="collection">{}</span><span class="comment">;</span>
+
+    o2.f.apply<span class="list">(<span class="keyword">o3</span>)</span><span class="comment">;</span>
+}</span>
+</code></pre><p>这里通过apply 调用o2.f, 使of.f的this指向o3, 这样一来g()返回的this就指向了o3 本身。 去掉 <code>console.log(this.e());</code>这行代码的原因就是为了避免报<code>Uncaught TypeError: this.e is not a function(…)</code>错误（因为o3上没有定义e这个函数）;</p>
+<h3 id="通过new调用">通过new调用</h3><p>通过new调用的函数作为一个构造函数被执行去创建一个特定的实例对象。它主要做了3件事:</p>
+<ol>
+<li>创建一个新对象，继承其构造函数的原型链；</li>
+<li>执行该构造函数并把this绑定到新创建的对象上；</li>
+<li><p>如果构造函数有返回对象则将刚返回对象作为new表达式的执行结果（），如果未返回对象，则将第一步创建的对象作为最终结果。</p>
+<p> {</p>
+<pre><code><span class="keyword">var</span> Person = <span class="function"><span class="keyword">function</span><span class="params">(a, b)</span> </span>{
+    <span class="keyword">this</span>.name = a || <span class="string">""</span>;
+    <span class="keyword">this</span>.age = b || <span class="string">""</span>;
+};
+
+<span class="keyword">var</span> AnotherPerson = <span class="function"><span class="keyword">function</span><span class="params">(a,b)</span> </span>{
+    <span class="keyword">this</span>.name = a || <span class="string">""</span>;
+    <span class="keyword">this</span>.age = b || <span class="string">""</span>;
+    <span class="keyword">return</span> {name: <span class="string">"Simpson"</span>};
+};
+
+p1 = <span class="keyword">new</span> Person(<span class="string">"Jane"</span>, <span class="number">22</span>); <span class="comment">// {name: "Jane", age: "22"};</span>
+p2 = <span class="keyword">new</span> AnotherPerson(<span class="string">"Jane"</span>, <span class="number">22</span>); <span class="comment">// {name: "Simpson"};</span>
+</code></pre><p> }</p>
+</li>
+</ol>
+<p>像上面的例子，this始终是指向第一步创建的对象，当构造函数没有返回对象时，p1得到的结果即是第一步创建的对象被赋值后的结果。 当构造函数具有返回对象时， <code>this.name = a || &quot;&quot;; this.age = b || &quot;&quot;;</code>其实也执行了，第一步创建的对象其实也被赋值了，只是最终结果被其返回值覆盖了。</p>
+<h3 id="通过call,_apply调用">通过call, apply调用</h3><p>前面的例子已经提到过，通过apply可以指定function内部的this指向一个特定的对象，通过call方法也是一样的，只需将特定的对象作为参数传递进去，函数内部的this就会指定到这个特定的对象上。</p>
+<pre><code>{
+
+    <span class="keyword">var</span> k = 1;
+
+    function <span class="literal">j</span>() {
+        <span class="keyword">return</span> this.k;
+    }
+
+    <span class="keyword">var</span> <span class="keyword">l</span> = {
+        k: 10
+    };
+
+    <span class="literal">j</span>(); <span class="comment">// 1;  this指向window对象</span>
+    j.apply(<span class="keyword">l</span>); <span class="comment">//10</span>
+    j.call(<span class="keyword">l</span>); <span class="comment">//10</span>
+}
+</code></pre><h3 id="通过bind指定对象调用函数">通过bind指定对象调用函数</h3><p>bind和call,apply的作用类似，也是将function内部的this绑定到一个特定的对象上。</p>
+<pre><code>{
+
+    <span class="keyword">var</span> k = 1;
+    function <span class="literal">j</span>() {
+        <span class="keyword">return</span> this.k;
+    }
+
+    <span class="keyword">var</span> <span class="keyword">l</span> = {
+        k: 10
+    };
+
+    <span class="keyword">m</span> = j.bind(<span class="keyword">l</span>);
+
+    <span class="literal">j</span>(); <span class="comment">// 1</span>
+    <span class="literal">m</span>(); <span class="comment">// 10</span>
+}
+</code></pre>]]></content>
+    <summary type="html">
+    <![CDATA[<blockquote>
+<p>The best time for new beginnings is now</p>
+</blockquote>
+<p>this的指向问题在javascript中一直比较困扰我。 一下总结了几种情况下this分别指向的内容。 总的来说就是根据执行环境或函数的执行方式不同，this的值有所不同。<br>这里假设执行环境是在浏览器端，所有的全局对象都是指window对象</p>]]>
+    
+    </summary>
+    
+      <category term="javascript" scheme="http://yoursite.com/tags/javascript/"/>
+    
+      <category term="tech" scheme="http://yoursite.com/tags/tech/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[understanding express(2)之expressJS接收和处理http请求过程]]></title>
