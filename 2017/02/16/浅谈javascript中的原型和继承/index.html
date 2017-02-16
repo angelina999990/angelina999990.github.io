@@ -18,7 +18,7 @@
 
 
 
-  <meta name="keywords" content="express,javascript,node," />
+  <meta name="keywords" content="javascript,tech," />
 
 
 
@@ -31,7 +31,7 @@
 
 
 
-  <title> understanding express(2)之expressJS接收和处理http请求过程 // Angelina ZX </title>
+  <title> 浅谈javascript中的原型和继承 // Angelina ZX </title>
 </head>
 
 <body>
@@ -102,7 +102,7 @@
           
           
             
-              understanding express(2)之expressJS接收和处理http请求过程
+              浅谈javascript中的原型和继承
             
           
         </h1>
@@ -110,7 +110,7 @@
 
       <div class="post-meta">
         <span class="post-time">
-          Posted on 2016-01-27
+          Posted on 2017-02-16
         </span>
 
         
@@ -119,8 +119,8 @@
           
             <span class="post-comments-count">
             &nbsp; | &nbsp;
-            <a href="/2016/01/28/understanding-express-2/#comments" >
-              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2016/01/28/understanding-express-2/"></span>
+            <a href="/2017/02/16/浅谈javascript中的原型和继承/#comments" >
+              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/02/16/浅谈javascript中的原型和继承/"></span>
             </a>
           </span>
           
@@ -135,245 +135,55 @@
 
       
         <blockquote>
-<p>Have the courage to follow your heart and intuition. They somehow already know what you truly want to become. Everything else is secondary</p>
+<p>How to travel in time? read. How to feel time? Write.</p>
 </blockquote>
-<p>今天来了解整个接收和处理请求的过程。</p>
-<p><a href="http://angelina999990.gitcafe.io/2016/01/25/understanding-expressJS/" target="_blank" rel="external">上一章</a>说了当接收到一个请求的时候是通过这个函数 <code>app.handle(req, res, next);</code> 来处理请求的。今天来说一下具体一个请求的处理过程。</p>
-<p>收到请求会执行<code>app.handle(req, res, next)</code>，具体代码如下：</p>
-<a id="more"></a>
-<pre><code><span class="comment">//application.js</span>
-app.handle = <span class="function"><span class="keyword">function</span><span class="params">(req, res, done)</span> </span>{
-  <span class="keyword">var</span> router = <span class="keyword">this</span>._router;
-
-  <span class="comment">// final handler</span>
-  done = done || finalhandler(req, res, {
-    env: <span class="keyword">this</span>.<span class="keyword">get</span>(<span class="string">'env'</span>),
-    onerror: logerror.bind(<span class="keyword">this</span>)
-  });
-
-  <span class="comment">// no routes</span>
-  <span class="keyword">if</span> (!router) {
-    debug(<span class="string">'no routes defined on app'</span>);
-    done();
-    <span class="keyword">return</span>;
-  }
-
-  router.handle(req, res, done);
-};
-</code></pre><p>这个函数接收三个参数req，res，next。 其中next就是上面的done, 默认是finalhandler。具体可以看<a href="https://github.com/pillarjs/finalhandler" target="_blank" rel="external">这里</a>。然后调用router.handle()开始链式调用。</p>
-<p>router.handler 代码比较长，先看结构：</p>
-<pre><code><span class="comment">// router/index.js</span>
-proto.handle = <span class="function"><span class="keyword">function</span><span class="params">(req, res, done)</span> </span>{
-  ...... <span class="comment">//定义一些基本变量</span>
-
-  next();
-
-  <span class="function"><span class="keyword">function</span> <span class="title">next</span><span class="params">(err)</span> </span>{
-    ......
-  }
-
-  <span class="function"><span class="keyword">function</span> <span class="title">trim_prefix</span><span class="params">(layer, layerError, layerPath, path)</span> </span>{
-    ...... <span class="comment">//对路径做些处理再调用layer.handle_request</span>
-  }
-};
-</code></pre><p>其中通过递归调用next()来遍历stack(存放中间件的栈，是一个数组)看是否有匹配的中间件。在proto.handle的开头就定义了idx=0，表示当前中间件索引。在next()中首先判断当前中间件索引是否大于stack.length。 如果是说明已遍历完，直接执行done()。</p>
-<pre><code>// <span class="keyword">function</span> next()
-<span class="keyword">if</span> (idx &gt;= stack.length) {
-  <span class="built_in">set</span>Immediate(<span class="keyword">done</span>, layerError);
-  <span class="built_in">return</span>;
-}
-</code></pre><p>否则的话执行while循环找到第一个可以处理http请求的中间件。 来看一下while的主要代码：</p>
-<pre><code>// function next()
-<span class="keyword">var</span> layer;
-<span class="keyword">var</span> match;
-<span class="keyword">var</span> route;
-
-<span class="keyword">while</span> (match !== <span class="literal">true</span> &amp;&amp; idx &lt; stack.length) {
-  layer = stack[idx++];
-  match = matchLayer(layer, path);  //调用了layer.match 方法
-  route = layer.route;
-
-  <span class="keyword">if</span> (typeof match !== 'boolean') {
-    layerError = layerError || match;
-  }
-
-  <span class="keyword">if</span> (match !== <span class="literal">true</span>) {
-    <span class="keyword">continue</span>; // 不匹配，退出本次循环。
-  }
-
-  <span class="keyword">if</span> (!route) {
-    <span class="keyword">continue</span>;
-  }
-
-  <span class="keyword">if</span> (layerError) {
-    match = <span class="literal">false</span>;
-    <span class="keyword">continue</span>;
-  }
-
-  <span class="keyword">var</span> <span class="keyword">method</span> = req.<span class="keyword">method</span>;
-  <span class="keyword">var</span> has_method = route._handles_method(<span class="keyword">method</span>);
-
-  <span class="keyword">if</span> (!has_method &amp;&amp; <span class="keyword">method</span> === '<span class="type">OPTIONS</span>') {
-    appendMethods(options, route._options());
-  }
-
-  <span class="keyword">if</span> (!has_method &amp;&amp; <span class="keyword">method</span> !== '<span class="type">HEAD</span>') {
-    match = <span class="literal">false</span>;
-    <span class="keyword">continue</span>;
-  }
-}
-</code></pre><p>通过matchLayer确定当前layer是否与当前路径匹配。不匹配则直接结束本次循环进入下一个中间件的判断。match为true但是layer.route不存在，说明不是路由中间件，结束本次循环，由于此时match为true会结束while循环直接进入下面的步骤（这个稍后说）。 如果route存在，即是路由中间件，再判断该路由可处理的http方法是否与请求的http方法一致。如果不一致则根据其method是否为options或head做相应处理，一致则不再对match做修改，这样执行下次while循环的时候由于match为true会结束循环进入下面的步骤。</p>
-<pre><code>// <span class="function"><span class="keyword">function</span> <span class="title">next</span><span class="params">()</span></span> 结束<span class="keyword">while</span>循环后的部分
-
-<span class="keyword">if</span> (match !== <span class="keyword">true</span>) {
-   //结束循环后match仍然为<span class="keyword">false</span>, 说明是遍历完stack, 没有匹配的中间件
-  <span class="keyword">return</span> done(layerError);
+<p>前几天仔细的看了看javascript的原型模式和基于原型的继承， 今天就对其作一个简单的总结作为读书笔记。</p>
+<h2 id="什么是原型">什么是原型</h2><p>说原型之前，我们先来说说函数吧。<br><a id="more"></a></p>
+<pre><code><span class="function"><span class="keyword">function</span> <span class="title">Person</span><span class="params">()</span> </span>{
 }
 
-<span class="keyword">if</span> (route) {
-  req.route = route;
+Person.prototype.name = <span class="string">'Scofiled'</span>;
+Person.prototype.age = <span class="number">29</span>;
+Person.prottype.sayName = <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+ <span class="keyword">return</span> <span class="keyword">this</span>.name;
 }
 
-req.params = self.mergeParams
-  ? mergeParams(layer.params, parentParams)
-  : layer.params;
-var layerPath = layer.path;
+<span class="keyword">var</span> person1 = <span class="keyword">new</span> Person();
+person1.sayName(); <span class="comment">// 'Scofield'</span>
+alert(person1.age); <span class="comment">//29</span>
 
-self.process_params(layer, paramcalled, req, res, <span class="function"><span class="keyword">function</span> <span class="params">(err)</span></span> {
-  <span class="keyword">if</span> (err) {
-    <span class="keyword">return</span> <span class="built_in">next</span>(layerError || err);
-  }
+<span class="keyword">var</span> person2 = <span class="keyword">new</span> Person();
+person2.sayName(); <span class="comment">// 'Scofield'</span>
+alert(person2.age); <span class="comment">//29</span>
+</code></pre><p>这里定义了一个名为<code>Person</code>的函数，然后在在它的<code>prototype</code>属性上又添加了如上几个属性。 然后创建了<code>Person</code>的两个实例。<br>这个<code>prototype</code> 是哪里来的呢？ <strong>我们每创建一个新函数， 就会自动为该函数创建一个<code>prototype</code>属性，这个属性指向一个对象，这个对象就是原型对象</strong>。<br>原型对象是拿来干嘛的？如上面代码显示的，<code>person1</code> 和<code>person2</code>都是<code>Person</code>的实例， 这两个实例都具有了<code>Person.prototype</code>上定义的属性和方法。简而言之，<strong>原型对象的用途就是让某特定类型（如：<code>Person</code>）的所有实例（如：<code>person1</code>和<code>person2</code>）能共享一些属性和方法</strong>。</p>
+<p>需要注意的是，这里的name,age和sayName()都是原型对象上的属性和方法，并非实例本身所有。在调用构造函数（<code>Person</code>）创建实例（<code>person1</code>和<code>person2</code>）后，实例内部将包含一个指针指向构造函数的原型对象（<code>Person.prototype</code>）。 举个列子，读取<code>person1.age</code>时<code>person1</code>本身是没有age这个属性的, 但是程序会在读取属性时执行一次搜索，从实例本身开始，找到目标则停止，否则继续向上查找原型对象。所以<code>person1.age</code>的值其实是在查找原型对象时返回的。</p>
+<h2 id="原型链和继承">原型链和继承</h2><p>说完原型，就来说继承。 继承的实现主要是通过原型链。 上面大概理了一下原型和实例的关系， <code>person1</code>的指针是指向原型对象<code>Person.prototype</code>的，<code>Person.prototype</code>是在定义<code>Person</code>时自动创建并有我们手动添加了一些属性和方法。试想一下，如果Person.prototype指向的是另一个类型的实例会怎样。</p>
+<pre><code><span class="function"><span class="keyword">function</span> <span class="title">superPerson</span><span class="params">()</span> </span>{
+  <span class="keyword">this</span>.superProperty = <span class="string">'super'</span>;
+}
 
-  <span class="keyword">if</span> (route) {
-    //<span class="built_in">next</span>作为回调函数传入handle_request,形成一个闭包，再在handle_request中调用<span class="built_in">next</span>()的时候idx的值仍然是上一次退出<span class="keyword">while</span>循环的值
-    <span class="keyword">return</span> layer.handle_request(req, res, <span class="built_in">next</span>);
-  }
+SuperPerson.prototype.superName = <span class="string">'protoSuper'</span>;
+SuperPerson.prototype.getSuperName = <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+  <span class="keyword">return</span> <span class="keyword">this</span>.superName;
+}
 
-  //对路径做些处理再调用layer.handle_request
-  trim_prefix(layer, layerError, layerPath, path);
-});
-</code></pre><p>这部分首先进行一些参数预处理，如果为路由中间件就直接调用layer.handle_request，否则先对路径做些处理再调用layer.handle_request。下面是layer.handle_request的代码：</p>
-<pre><code><span class="comment">// router/layer.js</span>
-Layer.prototype.handle_request = <span class="function"><span class="keyword">function</span> <span class="title">handle</span><span class="params">(req, res, next)</span> </span>{
-  <span class="keyword">var</span> fn = <span class="keyword">this</span>.handle;
+<span class="function"><span class="keyword">function</span> <span class="title">Person</span><span class="params">()</span> </span>{
+  <span class="keyword">this</span>.personProperty = <span class="string">'person'</span>;
+}
 
-  <span class="keyword">if</span> (fn.length &gt; <span class="number">3</span>) {
-    <span class="comment">// not a standard request handler</span>
-    <span class="keyword">return</span> next();
-  }
+Person.prototype = <span class="keyword">new</span> SuperPerson(); <span class="comment">// {superProperty: 'super'}</span>
 
-  <span class="keyword">try</span> {
-    fn(req, res, next);
-  } <span class="keyword">catch</span> (err) {
-    next(err);
-  }
-};
-</code></pre><p>layer.handle_request会在Router.handle和route.dispatch中调用。注意若是从Router.handle调用的，next是Router.handle里定义的next，若是从route.dispatch调用的，next是dispatch里定义的next。 不同的next遍历的对象有所不同。举个🌰：</p>
-<pre><code><span class="comment">//app.js</span>
-    <span class="keyword">var</span> user = <span class="keyword">require</span>(<span class="string">'user'</span>);
-    <span class="keyword">var</span> app = express();
+<span class="keyword">var</span> person1 = <span class="keyword">new</span> Person(); <span class="comment">// {personProperty: 'person'}</span>
 
-    app.<span class="keyword">use</span>(<span class="string">'/index'</span>, <span class="function"><span class="keyword">function</span><span class="params">()</span></span>{
-        <span class="comment">//do something</span>
-    })
-    app.<span class="keyword">use</span>(<span class="string">'/user'</span>, user);
-
-
-<span class="comment">//user.js</span>
-    <span class="keyword">var</span> userRouter = <span class="keyword">require</span>(<span class="string">'express'</span>).Router();
-    <span class="keyword">var</span> checkAuth = <span class="function"><span class="keyword">function</span><span class="params">(req, res, next)</span></span>{
-        <span class="comment">//... check auth</span>
-        next()
-    };
-    <span class="keyword">var</span> getList = <span class="function"><span class="keyword">function</span><span class="params">(req, res, next)</span> </span>{
-        <span class="comment">//... get user list</span>
-    }
-
-    userRouter.get(<span class="string">'/list'</span>, checkAuth, getList);
-    module.exports = userRouter;
-</code></pre><p>app.js中的两个app.use其实是调用router.use创建了两个layer对象并将其添加到app._router.stack中，以下简称Router。Router.stack应该是类似这样的<code>[ layer1, layer2 ]</code>。 其中layer2实际上是express.Router()的导出对象, 在app.use方法中会视为一个子app封装一层。像这样：</p>
-<pre><code><span class="comment">//application.js app.use()</span>
-<span class="function"><span class="keyword">function</span> <span class="title">mounted_app</span><span class="params">(req, res, next)</span> </span>{
-  <span class="keyword">var</span> orig = req.app;
-  fn.handle(req, res, <span class="function"><span class="keyword">function</span> <span class="params">(err)</span> </span>{
-    req.__proto__ = orig.request;
-    res.__proto__ = orig.response;
-    next(err);
-});
-</code></pre><p>这里的fn实际上就是<code>app.use(&#39;/user&#39;,user)</code>中的user（即user.js中导出的Router）。完整代码可查看application.js 的app.use。</p>
-<p>上面user.js中调用userRouter.get方法创建一个新的route和layer（这里暂时叫newLayer, 这个layer会被push到userRouter.stack中）， 再调用route.get方法把checkAuth和getList添加到route.stack中，所以该route的stack应该类似这样 <code>[ layer3, layer4 ]</code>，userRouter.stack是这样的<code>[ newLayer ]</code>。 这里附上Router.route和 Router.VERB的代码。</p>
-<pre><code>// router/index.js
-proto.route = function(path){
-  <span class="keyword">var</span> route = new <span class="type">Route</span>(path);
-
-  <span class="keyword">var</span> layer = new <span class="type">Layer</span>(path, {
-    sensitive: this.caseSensitive,
-    strict: this.strict,
-    <span class="keyword">end</span>: <span class="literal">true</span>
-  }, route.dispatch.<span class="keyword">bind</span>(route)); //layer.handle=route.dispatch
-
-  layer.route = route;
-
-  this.stack.push(layer);
-  <span class="keyword">return</span> route;
-};
-
-// 创建 <span class="type">Router</span><span class="comment">#VERB functions</span>
-methods.concat('all').forEach(function(<span class="keyword">method</span>){
-  proto[<span class="keyword">method</span>] = function(path){
-
-    // 调用proto.route new 一个route对象。
-    <span class="keyword">var</span> route = this.route(path)
-
-    //在route.<span class="type">VERB</span>或route.all中会把传入的fn添加到该route的stack中
-    route[<span class="keyword">method</span>].apply(route, slice.call(arguments, <span class="number">1</span>));
-    <span class="keyword">return</span> this;
-  };
-});
-</code></pre><p>所以当收到一个http请求(eg. <a href="http://host.com/user/list)，" target="_blank" rel="external">http://host.com/user/list)，</a> 首先执行app.handle(), 在 <code>[layer1, layer2]</code>中查找匹配，当查找的layer2的时候，路径匹配且layer2不是一个路由中间件，进入到layer.handle_request调用layer.handle(这里的layer.handle就是mounted_app方法),里面又调用fn.handle就是执行userRouter.handle方法，又继续在userRouter.stack（<code>[ newLayer ]</code>）中查找匹配, newLayer路径与请求路径匹配且是路由中间件，进入layer.handle_request执行layer.handle，注意这里的layer.handle是route.dispatch，因为在Router.VERB中创建layer时是<code>new Layer(path, option, route.dispatch.bind(route))</code>。所以就会在route.stack(<code>[ layer3, layer4 ]</code>)中查找匹配。附上route.dispatch代码：</p>
-<pre><code><span class="type">Route</span>.prototype.dispatch = function(req, res, done){
-  <span class="keyword">var</span> idx = <span class="number">0</span>;
-  <span class="keyword">var</span> stack = this.stack;
-  <span class="keyword">if</span> (stack.length === <span class="number">0</span>) {
-    <span class="keyword">return</span> done();
-  }
-
-  <span class="keyword">var</span> <span class="keyword">method</span> = req.<span class="keyword">method</span>.toLowerCase();
-  <span class="keyword">if</span> (<span class="keyword">method</span> === 'head' &amp;&amp; !this.methods['head']) {
-    <span class="keyword">method</span> = 'get';
-  }
-
-  req.route = this;
-
-  next();
-
-  function next(err) {
-    <span class="keyword">if</span> (err &amp;&amp; err === 'route') {
-      <span class="keyword">return</span> done();
-    }
-
-    <span class="keyword">var</span> layer = stack[idx++];
-    <span class="keyword">if</span> (!layer) {
-      <span class="keyword">return</span> done(err);
-    }
-
-    <span class="keyword">if</span> (layer.<span class="keyword">method</span> &amp;&amp; layer.<span class="keyword">method</span> !== <span class="keyword">method</span>) {
-      <span class="keyword">return</span> next(err);
-    }
-
-    <span class="keyword">if</span> (err) {
-      layer.handle_error(err, req, res, next);
-    } <span class="keyword">else</span> {
-      layer.handle_request(req, res, next);
-    }
-  }
-};
-</code></pre><p>可以看到这里的idx是0，与Router.handle()中的idx不同，route.dispatch是在当前route.stack中遍历匹配。在上面的🌰中route.stack就是<code>[ layer3, layer4 ]</code>。处理逻辑与Router.handle类似，idx是当前下表，stack是当前路由处理函数列表，递归调用next。 这里next方法判断当前layer是否存在，不存在或方法不匹配调用done, 否则根据err值执行handle_request或handle_error。例子中的layer3路径和method都匹配，执行layer3.handle_request调用this.handle即checkauth方法，如果通过验证就会执行next(),注意这时的next是dispatch中定义的next方法。此时idx指向layer4, 依然匹配，继续执行getList方法。 getList执行后若不再调用next(), 则处理请求的过程结束， 否则继续执行next, 此时route.stack遍历完再找不到layer会执行done(err) 返回到<code>[newLayer]</code>层面，userRouter.stack也遍历完（userRouter.handle中的idx此时为1，大于<code>[newLayer].length</code>）于是又调用done, 回到上层的Router.stack中(<code>[layer1, layer2]</code>)依次类推。当热由于getList处理完请求后直接reponse所以不会再调用next()。 这里只是分析下如果继续调用next的行为。</p>
-<p>表述得可能不太清楚，看图：</p>
-<p><img src="http://d.pcs.baidu.com/thumbnail/c9ddf27e2239ce53983f5628faab78de?fid=571110063-250528-341365159016922&amp;time=1453910400&amp;sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-89IEUyBrNLkIrRrkm0IX4DReUj4%3D&amp;rt=sh&amp;expires=2h&amp;r=914482467&amp;sharesign=unknown&amp;size=c710_u500&amp;quality=100" alt="http请求处理过程"></p>
-<h3 id="Reference">Reference</h3><ul>
-<li><a href="https://github.com/syaning/understanding-express" target="_blank" rel="external">express源码解析</a></li>
-</ul>
+person1.getSuperName(); <span class="comment">// 'protoSuper'</span>
+alert(person1.superProperty); <span class="comment">// 'super'</span>
+alert(person1.personProperty); <span class="comment">// 'person'</span>
+</code></pre><p>如上，定义了一个<code>SuperPerson</code>类型。在定义Person后我们首先创建一个<code>SuperPerson</code>实例并将其赋值给<code>Person.prototype</code>。上面讲原型时提到过，在调用构造函数创建实例后，实例内部将包含一个指针指向构造函数的原型对象，所以这里 <code>new SuperPerson()</code> 得到的实例对象内部也包含一个指针指向<code>SuperPerson</code>的原型对象（即<code>SuperPerson.prototype</code>），当然也会继承<code>SuperPerson.prototype</code>上包含的属性和方法。</p>
+<p>在读取 <code>person1.getSuperName</code> 方法时执行了3次搜索，第1次<code>person1</code>本身，没有找到目标； 第2次便根据<code>person1</code>内部指针指向的原型对象（Person.prototype）去查找，也没有找到；第3次根据<code>Person.prototype</code>内部指针指向的原型（<code>SuperPerson.prototype</code>）查找，找到目标。</p>
+<p>在读取 <code>person1.superProperty</code>时执行了两次查找，第1次仍然是没有找到，第2次查找<code>Person.prototype</code>时，由于<code>Person.prototype</code>是<code>SuperPerson</code>的一个实例，所以<code>Person.prototype</code>是具有<code>superProperty</code>属性的。所以成功在<code>Person</code>的原型对象上找到。</p>
+<p>同样的<code>person1</code>是<code>Person</code>的实例，所以<code>person1</code>本身是具有<code>personProperty</code>这个属性的。所以读取<code>person1.personProperty</code>时只执行了一次搜索。</p>
+<p>如上面这种一个原型又是另一个类型的实例，这样层层递进，就构成了实力与原型的链条，就是作为的<strong>原型链</strong>。仿造着这种方法，我们还可以根据需要给这条原型链的头尾继续增加其他类型，来实现属性和方法的继承。</p>
+<p>这里只是简单的说了说原型和继承的概念，其中当然还涉及了更为复杂的问题，还是留着下一次再细说吧。</p>
 
       
     </div>
@@ -382,11 +192,9 @@ methods.concat('all').forEach(function(<span class="keyword">method</span>){
       
         <div class="post-tags">
           
-            <a href="/tags/express/"> #express </a>
-          
             <a href="/tags/javascript/"> #javascript </a>
           
-            <a href="/tags/node/"> #node </a>
+            <a href="/tags/tech/"> #tech </a>
           
         </div>
       
@@ -395,13 +203,11 @@ methods.concat('all').forEach(function(<span class="keyword">method</span>){
         <div class="post-nav">
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016/08/25/understanding-javascript-this/">理解javascript this关键字的在不同情况下的表现</a>
-            
           </div>
 
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/01/25/understanding-expressJS/">understanding expressJS (1)</a>
+              <a href="/2016/08/25/understanding-javascript-this/">理解javascript this关键字的在不同情况下的表现</a>
             
           </div>
         </div>
@@ -529,7 +335,7 @@ methods.concat('all').forEach(function(<span class="keyword">method</span>){
           <div class="post-toc">
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Reference"><span class="nav-number">1.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是原型"><span class="nav-number">1.</span> <span class="nav-text">什么是原型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#原型链和继承"><span class="nav-number">2.</span> <span class="nav-text">原型链和继承</span></a></li></ol></div>
             
           </div>
           <div class="post-toc-indicator-bottom post-toc-indicator"></div>
@@ -1102,8 +908,8 @@ methods.concat('all').forEach(function(<span class="keyword">method</span>){
 
     <script type="text/javascript">
       var disqus_shortname = 'angelinazx';
-      var disqus_identifier = '2016/01/28/understanding-express-2/';
-      var disqus_url = 'http://yoursite.com/2016/01/28/understanding-express-2/';
+      var disqus_identifier = '2017/02/16/浅谈javascript中的原型和继承/';
+      var disqus_url = 'http://yoursite.com/2017/02/16/浅谈javascript中的原型和继承/';
 
       (function(){
         var dsq = document.createElement('script');

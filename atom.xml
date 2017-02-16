@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2016-08-25T03:32:24.000Z</updated>
+  <updated>2017-02-16T08:58:00.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -13,6 +13,78 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[浅谈javascript中的原型和继承]]></title>
+    <link href="http://yoursite.com/2017/02/16/%E6%B5%85%E8%B0%88javascript%E4%B8%AD%E7%9A%84%E5%8E%9F%E5%9E%8B%E5%92%8C%E7%BB%A7%E6%89%BF/"/>
+    <id>http://yoursite.com/2017/02/16/浅谈javascript中的原型和继承/</id>
+    <published>2017-02-16T07:20:51.000Z</published>
+    <updated>2017-02-16T08:58:00.000Z</updated>
+    <content type="html"><![CDATA[<blockquote>
+<p>How to travel in time? read. How to feel time? Write.</p>
+</blockquote>
+<p>前几天仔细的看了看javascript的原型模式和基于原型的继承， 今天就对其作一个简单的总结作为读书笔记。</p>
+<h2 id="什么是原型">什么是原型</h2><p>说原型之前，我们先来说说函数吧。<br><a id="more"></a></p>
+<pre><code><span class="function"><span class="keyword">function</span> <span class="title">Person</span><span class="params">()</span> </span>{
+}
+
+Person.prototype.name = <span class="string">'Scofiled'</span>;
+Person.prototype.age = <span class="number">29</span>;
+Person.prottype.sayName = <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+ <span class="keyword">return</span> <span class="keyword">this</span>.name;
+}
+
+<span class="keyword">var</span> person1 = <span class="keyword">new</span> Person();
+person1.sayName(); <span class="comment">// 'Scofield'</span>
+alert(person1.age); <span class="comment">//29</span>
+
+<span class="keyword">var</span> person2 = <span class="keyword">new</span> Person();
+person2.sayName(); <span class="comment">// 'Scofield'</span>
+alert(person2.age); <span class="comment">//29</span>
+</code></pre><p>这里定义了一个名为<code>Person</code>的函数，然后在在它的<code>prototype</code>属性上又添加了如上几个属性。 然后创建了<code>Person</code>的两个实例。<br>这个<code>prototype</code> 是哪里来的呢？ <strong>我们每创建一个新函数， 就会自动为该函数创建一个<code>prototype</code>属性，这个属性指向一个对象，这个对象就是原型对象</strong>。<br>原型对象是拿来干嘛的？如上面代码显示的，<code>person1</code> 和<code>person2</code>都是<code>Person</code>的实例， 这两个实例都具有了<code>Person.prototype</code>上定义的属性和方法。简而言之，<strong>原型对象的用途就是让某特定类型（如：<code>Person</code>）的所有实例（如：<code>person1</code>和<code>person2</code>）能共享一些属性和方法</strong>。</p>
+<p>需要注意的是，这里的name,age和sayName()都是原型对象上的属性和方法，并非实例本身所有。在调用构造函数（<code>Person</code>）创建实例（<code>person1</code>和<code>person2</code>）后，实例内部将包含一个指针指向构造函数的原型对象（<code>Person.prototype</code>）。 举个列子，读取<code>person1.age</code>时<code>person1</code>本身是没有age这个属性的, 但是程序会在读取属性时执行一次搜索，从实例本身开始，找到目标则停止，否则继续向上查找原型对象。所以<code>person1.age</code>的值其实是在查找原型对象时返回的。</p>
+<h2 id="原型链和继承">原型链和继承</h2><p>说完原型，就来说继承。 继承的实现主要是通过原型链。 上面大概理了一下原型和实例的关系， <code>person1</code>的指针是指向原型对象<code>Person.prototype</code>的，<code>Person.prototype</code>是在定义<code>Person</code>时自动创建并有我们手动添加了一些属性和方法。试想一下，如果Person.prototype指向的是另一个类型的实例会怎样。</p>
+<pre><code><span class="function"><span class="keyword">function</span> <span class="title">superPerson</span><span class="params">()</span> </span>{
+  <span class="keyword">this</span>.superProperty = <span class="string">'super'</span>;
+}
+
+SuperPerson.prototype.superName = <span class="string">'protoSuper'</span>;
+SuperPerson.prototype.getSuperName = <span class="function"><span class="keyword">function</span><span class="params">()</span> </span>{
+  <span class="keyword">return</span> <span class="keyword">this</span>.superName;
+}
+
+<span class="function"><span class="keyword">function</span> <span class="title">Person</span><span class="params">()</span> </span>{
+  <span class="keyword">this</span>.personProperty = <span class="string">'person'</span>;
+}
+
+Person.prototype = <span class="keyword">new</span> SuperPerson(); <span class="comment">// {superProperty: 'super'}</span>
+
+<span class="keyword">var</span> person1 = <span class="keyword">new</span> Person(); <span class="comment">// {personProperty: 'person'}</span>
+
+person1.getSuperName(); <span class="comment">// 'protoSuper'</span>
+alert(person1.superProperty); <span class="comment">// 'super'</span>
+alert(person1.personProperty); <span class="comment">// 'person'</span>
+</code></pre><p>如上，定义了一个<code>SuperPerson</code>类型。在定义Person后我们首先创建一个<code>SuperPerson</code>实例并将其赋值给<code>Person.prototype</code>。上面讲原型时提到过，在调用构造函数创建实例后，实例内部将包含一个指针指向构造函数的原型对象，所以这里 <code>new SuperPerson()</code> 得到的实例对象内部也包含一个指针指向<code>SuperPerson</code>的原型对象（即<code>SuperPerson.prototype</code>），当然也会继承<code>SuperPerson.prototype</code>上包含的属性和方法。</p>
+<p>在读取 <code>person1.getSuperName</code> 方法时执行了3次搜索，第1次<code>person1</code>本身，没有找到目标； 第2次便根据<code>person1</code>内部指针指向的原型对象（Person.prototype）去查找，也没有找到；第3次根据<code>Person.prototype</code>内部指针指向的原型（<code>SuperPerson.prototype</code>）查找，找到目标。</p>
+<p>在读取 <code>person1.superProperty</code>时执行了两次查找，第1次仍然是没有找到，第2次查找<code>Person.prototype</code>时，由于<code>Person.prototype</code>是<code>SuperPerson</code>的一个实例，所以<code>Person.prototype</code>是具有<code>superProperty</code>属性的。所以成功在<code>Person</code>的原型对象上找到。</p>
+<p>同样的<code>person1</code>是<code>Person</code>的实例，所以<code>person1</code>本身是具有<code>personProperty</code>这个属性的。所以读取<code>person1.personProperty</code>时只执行了一次搜索。</p>
+<p>如上面这种一个原型又是另一个类型的实例，这样层层递进，就构成了实力与原型的链条，就是作为的<strong>原型链</strong>。仿造着这种方法，我们还可以根据需要给这条原型链的头尾继续增加其他类型，来实现属性和方法的继承。</p>
+<p>这里只是简单的说了说原型和继承的概念，其中当然还涉及了更为复杂的问题，还是留着下一次再细说吧。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<blockquote>
+<p>How to travel in time? read. How to feel time? Write.</p>
+</blockquote>
+<p>前几天仔细的看了看javascript的原型模式和基于原型的继承， 今天就对其作一个简单的总结作为读书笔记。</p>
+<h2 id="什么是原型">什么是原型</h2><p>说原型之前，我们先来说说函数吧。<br>]]>
+    
+    </summary>
+    
+      <category term="javascript" scheme="http://yoursite.com/tags/javascript/"/>
+    
+      <category term="tech" scheme="http://yoursite.com/tags/tech/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[理解javascript this关键字的在不同情况下的表现]]></title>
