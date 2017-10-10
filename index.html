@@ -104,6 +104,116 @@
           
           
             
+              <a class="post-title-link" href="/2017/10/10/JStimezone/">
+                Javascript 时间时区大杂烩
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          Posted on 2017-10-10
+        </span>
+
+        
+
+        
+          
+            <span class="post-comments-count">
+            &nbsp; | &nbsp;
+            <a href="/2017/10/10/JStimezone/#comments" >
+              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2017/10/10/JStimezone/"></span>
+            </a>
+          </span>
+          
+        
+      </div>
+    </div>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <blockquote>
+<p>Read not to contridict and confute; nor to believe and take for granted; nor to find talk and discourse; but to weigh and consider.</p>
+</blockquote>
+<p>以前从来没有认真钻研过JS中Date的时间时区细节，因为工作中遇到了前端页面设置时间，实际保存早／晚了一天的情况，专门花时间学习了相关知识点，谨以此文作学习笔记。</p>
+<h2 id="GMT_&amp;_UTC">GMT &amp; UTC</h2><ul>
+<li>GMT (格林威治时间) - 格林尼治标准时间的正午是指当太阳横穿格林威治子午线时（也就是在格林威治上空最高点时）的时间。</li>
+<li>UTC (协调世界时) - 是最主要的世界時間標準，其以原子时秒长为基础，在时刻上尽量接近于格林尼治标准时间。</li>
+</ul>
+<p>以上信息有兴趣可以去维基百科查看详情，看不懂也没关系，只需要记住：两个都是世界标准时间，由于GMT本身存在误差，现在的标准时间由UTC决定。</p>
+<h2 id="时间表示法_-_ISO_8601">时间表示法 - ISO 8601</h2><p>国际标准ISO 8601，是国际标准化组织的日期和时间的表示方法。 格式：<code>YYYY-MM-DDThh24:mm:ssZ</code> (eg. <code>2017-08-24T08:45Z</code>)。日期时间合并表示时，要在时间前面加一大写字母T。如果时间是以 UTC 表示，则在时间后面直接加上一个“Z”（不加空格）。“Z”是 UTC 时间中0时区的标志。例如： “09:30 UTC” -&gt; “09:30Z”/“0930Z”。 Date.toJSON 方法返回的就是这种格式的字符串。</p>
+<h2 id="Javascript的Date对象">Javascript的Date对象</h2><p>new Date() 返回的是一个本地时间的date对象，</p>
+<pre><code><span class="built_in">var</span> <span class="built_in">date</span> <span class="subst">=</span> <span class="literal">new</span> <span class="built_in">Date</span>(); <span class="comment">// Fri Aug 25 2017 13:11:03 GMT+0800 (CST)</span>
+<span class="built_in">var</span> dateStr <span class="subst">=</span> <span class="built_in">date</span><span class="built_in">.</span>toISOString(); <span class="comment">// '2017-08-25T05:11:03.000Z'</span>
+</code></pre><p>CST（china standard time）是大中华标准时区，我们的时区是在东八区，GMT+0800表示标准时间基础上加8小时。<br>dateStr是date 对象的标准时间表示形式，”Z”表示这是UTC时间，从”05:11:03”也可以看出是在本地时间的基础上减去了8小时。</p>
+<pre><code><span class="keyword">var</span> dt1 = <span class="keyword">new</span> <span class="built_in">Date</span>(<span class="string">'2017-08-25T05:11:03.000Z'</span>); <span class="comment">// Fri Aug 25 2017 13:11:03 GMT+0800 (CST)</span>
+
+<span class="keyword">var</span> dt2 = <span class="keyword">new</span> <span class="built_in">Date</span>(<span class="string">'2017-08-25T05:11:03.000'</span>); <span class="comment">// Fri Aug 25 2017 05:11:03 GMT+0800 (CST)</span>
+</code></pre><p>上面两行代码传入的初始时间都是ISO 8601标准，区别在于一个是UTC时间，一个是本地时间（没有”Z”)。如果传入的是UTC时间，那么new Date最后返回的是一个转换为本地时间的date对象，也就是在我们传入的初始日期上+8小时后的日期对象。如果没有”Z”标识，系统默认这是一个本地时间，返回的date对象不再转换。<strong>简而言之，new Date时传入UTC时间，得到+8小时后的时间，传入普通时间字符串，得到时间一致的date对象</strong>。</p>
+<p>以下两行代码的效果和上面对应代码具有相同效果：</p>
+<pre><code><span class="keyword">var</span> dt1 = <span class="keyword">new</span> <span class="built_in">Date</span>(<span class="string">'Fri Aug 25 2017 05:11:03 UTC'</span>); <span class="comment">// 申明了时区（UTC）， 返回+8小时后的date对像</span>
+<span class="keyword">var</span> dt2 = <span class="keyword">new</span> <span class="built_in">Date</span>(<span class="string">'Fri Aug 25 2017 13:11:03'</span>); <span class="comment">// 没有申明时区，返回与传入时间一致的date对象</span>
+</code></pre><h2 id="前后端交互">前后端交互</h2><p>经常遇到的一种交互场景： 用户在一个详情页面设置一个带日期时间保存到数据库，下次加载页面的时候显示已有的日期。<br>数据库日期相关的数据类型有多个，有的带时区，有的不带。如果在交互时，前后端对时区的处理不一致，就可能造成最终显示的时间与用户实际选择的时间不一致的情况。举例说明：</p>
+<pre><code><span class="comment">// 用户实际选择的时间是： 2017-08-25</span>
+<span class="comment">// date object : Fri Aug 25 2017 07:00:00 GMT+0800</span>
+<span class="comment">// save data</span>
+<span class="variable">$http.put</span>(apiUrl, {time: <span class="string">'2017-08-24T23:00:00.000Z'</span>})<span class="built_in">.</span>then(()<span class="subst">=&gt;</span> <span class="string">'success!'</span>);
+
+<span class="comment">// get page detail</span>
+<span class="variable">$http.get</span>(<span class="string">'apiUrl'</span>)<span class="built_in">.</span>then( <span class="built_in">data</span> <span class="subst">=&gt;</span> {
+  console<span class="built_in">.</span><span class="keyword">log</span>(<span class="built_in">data</span>);   <span class="comment">// {time: '2017-08-24T23:00:00.000'}</span>
+  this<span class="built_in">.</span><span class="built_in">date</span> <span class="subst">=</span> <span class="literal">new</span> <span class="built_in">Date</span>(<span class="built_in">data</span><span class="built_in">.</span>time)<span class="built_in">.</span>toDateString(); <span class="comment">//</span>
+});
+
+<span class="comment">//tpl.html</span>
+<span class="subst">&lt;</span>p<span class="subst">&gt;</span> <span class="built_in">date</span>: <span class="subst">&lt;!--</span>￼<span class="number">0</span><span class="subst">--&gt;</span>; <span class="subst">&lt;</span>/p<span class="subst">&gt;</span> <span class="comment">// date: Fri Aug 24 2017</span>
+</code></pre><p>用户选择一个日期， 我得到一个date对象<code>Fri Aug 25 2017 07:00:00 GMT+0800</code>，转换为JSON数据保存到数据库，实际传给服务端的值是’2017-08-24T23:00:00.000Z’。假设数据库存的是不带时区的时间， 而保存前服务端未对该时间做响应的转换。那页面重新加载时，数据库返回的是一个非UTC时间<code>&#39;2017-08-24T23:00:00.000&#39;</code>。页面显示的就会比用户实际选择的早一天(实际：<code>2017.8.25</code>， 显示：<code>2017.8。24</code>)。</p>
+<h4 id="参考">参考</h4><ul>
+<li>维基百科</li>
+</ul>
+
+        
+      
+    </div>
+
+    <div class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/javascript/"> #javascript </a>
+          
+        </div>
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </div>
+  </div>
+
+
+    
+      
+
+  <div class="post post-type-normal ">
+    <div class="post-header">
+
+      
+      
+        <h1 class="post-title">
+          
+          
+            
               <a class="post-title-link" href="/2017/07/12/温故而知新-js事件流机制/">
                 温故而知新 - js事件流机制
               </a>
@@ -855,85 +965,6 @@ function createApplication() {
 
 
     
-      
-
-  <div class="post post-type-normal ">
-    <div class="post-header">
-
-      
-      
-        <h1 class="post-title">
-          
-          
-            
-              <a class="post-title-link" href="/2015/06/21/gulp学习初体验/">
-                gulp学习初体验
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          Posted on 2015-06-21
-        </span>
-
-        
-
-        
-          
-            <span class="post-comments-count">
-            &nbsp; | &nbsp;
-            <a href="/2015/06/21/gulp学习初体验/#comments" >
-              <span class="post-comments-count disqus-comment-count" data-disqus-identifier="2015/06/21/gulp学习初体验/"></span>
-            </a>
-          </span>
-          
-        
-      </div>
-    </div>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>花了一天的时间，把gulp的一些基本用法过了一遍。总算对其有了些了解。记录下学习中的不解，也算对这次的学习一个总结。</p>
-<p>首先介绍一下gulp，gulp是一个前端构建工具，利用它可以在项目开发过程中自动化执行任务。有赖于其强大的插件系统，我们可以利用gulp完成很多任务，例如执行JSHint，编译stylus，更新版本号等。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/06/21/gulp学习初体验/">
-              Read more &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div class="post-footer">
-      
-        <div class="post-tags">
-          
-            <a href="/tags/front-end/"> #front-end </a>
-          
-            <a href="/tags/tech/"> #tech </a>
-          
-        </div>
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </div>
-  </div>
-
-
-    
   </div>
 
   
@@ -969,7 +1000,7 @@ function createApplication() {
         <div class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-count">13</span>
               <span class="site-state-item-name">posts</span>
             </a>
           </div>
