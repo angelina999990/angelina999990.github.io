@@ -173,7 +173,7 @@
 });
 
 <span class="comment">//tpl.html</span>
-<span class="subst">&lt;</span>p<span class="subst">&gt;</span> <span class="built_in">date</span>: <span class="subst">\</span>{<span class="subst">\</span>{ <span class="built_in">date</span> <span class="subst">\</span>}<span class="subst">\</span>}; <span class="subst">&lt;</span>/p<span class="subst">&gt;</span> <span class="comment">// date: Fri Aug 24 2017</span>
+<span class="subst">&lt;</span>p<span class="subst">&gt;</span> <span class="built_in">date</span>: <span class="subst">&lt;!--</span> <span class="subst">%</span><span class="built_in">date</span><span class="subst">%</span> <span class="subst">--&gt;</span>; <span class="subst">&lt;</span>/p<span class="subst">&gt;</span> <span class="comment">// date: Fri Aug 24 2017</span>
 </code></pre><p>用户选择一个日期， 我得到一个date对象<code>Fri Aug 25 2017 07:00:00 GMT+0800</code>，转换为JSON数据保存到数据库，实际传给服务端的值是’2017-08-24T23:00:00.000Z’。假设数据库存的是不带时区的时间， 而保存前服务端未对该时间做相应的转换。那页面重新加载时，数据库返回的是一个非UTC时间<code>&#39;2017-08-24T23:00:00.000&#39;</code>。页面显示的就会比用户实际选择的早一天(实际：<code>2017.8.25</code>， 显示：<code>2017.8.24</code>)。</p>
 <h4 id="参考">参考</h4><ul>
 <li>维基百科</li>
