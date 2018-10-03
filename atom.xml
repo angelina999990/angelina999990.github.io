@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2018-10-03T13:23:18.000Z</updated>
+  <updated>2018-10-03T13:26:32.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -19,8 +19,8 @@
     <link href="http://yoursite.com/2018/10/03/high-performace-javascript-overview/"/>
     <id>http://yoursite.com/2018/10/03/high-performace-javascript-overview/</id>
     <published>2018-10-03T13:13:26.000Z</published>
-    <updated>2018-10-03T13:23:18.000Z</updated>
-    <content type="html"><![CDATA[<h1 id="高性能javascript_总结">高性能javascript 总结</h1><p>最近看完了高性能javascript，粗略的回顾一下各章知识点。由于看到是英文原版，有些翻译成中文的内容可能不太准确，附上原文做参考。<br>因为这本书是2010年写的，很多内容不适合当代浏览器，比如第四章讲到的循环算法Duff’s Device， 实测在chrome浏览器中不适用。还有文末提到的构建工具和性能测试工具，都很旧了，所以谨慎参考。</p>
+    <updated>2018-10-03T13:26:32.000Z</updated>
+    <content type="html"><![CDATA[<p>最近看完了高性能javascript，粗略的回顾一下各章知识点。由于看到是英文原版，有些翻译成中文的内容可能不太准确，附上原文做参考。<br>因为这本书是2010年写的，很多内容不适合当代浏览器，比如第四章讲到的循环算法Duff’s Device， 实测在chrome浏览器中不适用。还有文末提到的构建工具和性能测试工具，都很旧了，所以谨慎参考。</p>
 <a id="more"></a>
 <h2 id="Chapter_1:_the_most_optimal_ways_to_load_javascript">Chapter 1: the most optimal ways to load javascript</h2><p>Browsers don’t start rendering on the page until the opening <body> tag is encountered.<br>Every time a <code>&lt;script&gt;</code> tag is encountered, the page must stop and wait for the code to download and execute before continuing to process the rest of the page. UI 渲染和js代码不能同时运行，所以js代码运行时一定会阻塞ui更新。</body></p>
 <h3 id="Chapter_1_Summary">Chapter 1 Summary</h3><ul>
@@ -201,7 +201,7 @@
 <h2 id="Chapter_10:_performance_tools_that_help_identify_further_issues">Chapter 10: performance tools that help identify further issues</h2><p>本章介绍了一些javascript的性能测试工具。其中有一些工具已经过时，而且我没有全部研究过上面提到的工具，对于个人使用的性能分析工具有自己的喜好（eg. Chrome Audit），所以这一章略过。</p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<h1 id="高性能javascript_总结">高性能javascript 总结</h1><p>最近看完了高性能javascript，粗略的回顾一下各章知识点。由于看到是英文原版，有些翻译成中文的内容可能不太准确，附上原文做参考。<br>因为这本书是2010年写的，很多内容不适合当代浏览器，比如第四章讲到的循环算法Duff’s Device， 实测在chrome浏览器中不适用。还有文末提到的构建工具和性能测试工具，都很旧了，所以谨慎参考。</p>]]>
+    <![CDATA[<p>最近看完了高性能javascript，粗略的回顾一下各章知识点。由于看到是英文原版，有些翻译成中文的内容可能不太准确，附上原文做参考。<br>因为这本书是2010年写的，很多内容不适合当代浏览器，比如第四章讲到的循环算法Duff’s Device， 实测在chrome浏览器中不适用。还有文末提到的构建工具和性能测试工具，都很旧了，所以谨慎参考。</p>]]>
     
     </summary>
     
