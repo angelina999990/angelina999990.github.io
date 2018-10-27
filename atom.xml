@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2018-10-03T13:26:32.000Z</updated>
+  <updated>2018-10-27T09:01:33.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -13,6 +13,65 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[Chrome devtools 工作原理]]></title>
+    <link href="http://yoursite.com/2018/10/27/Chrome-devtools-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/"/>
+    <id>http://yoursite.com/2018/10/27/Chrome-devtools-工作原理/</id>
+    <published>2018-10-27T09:00:03.000Z</published>
+    <updated>2018-10-27T09:01:33.000Z</updated>
+    <content type="html"><![CDATA[<blockquote>
+<p>So many books, so little time. - Frank Zappa</p>
+</blockquote>
+<p>面试的时候被问到Chrome devtools的工作原理没答上来，之后专门学习了一下，写本文梳理下知识点。<br><a id="more"></a></p>
+<h2 id="Chrome_远程调试协议（Remote_Debugger_Protocal)">Chrome 远程调试协议（Remote Debugger Protocal)</h2><p>对于Chrome devtools大家普遍熟悉可以通过右键inspector或者cmd+opt+j打开控制台进行本地调试。还有一种方法就是可以通过一个浏览器调试另一个浏览器，或者通过usb连接手机调试手机webView。这两种方式都属于在新启一个窗口远程调试目标页面。这个新启的窗口打开了一个html页面（inspector.html），它的长相与内嵌的devtools一样。在inspector.html调试目标页面就像在内嵌devtools里调试一样。</p>
+<h3 id="关于协议">关于协议</h3><p>官方解释是允许工具对Chrome，Chromium及其他基于Blink的浏览器进行调试、审查的协议。它划分了多个不同的功能模块（域），如DOM, Debugger, Network, Timeline等，每个模块以结构化JSON的形式都定义了一些命令和事件。</p>
+<h3 id="远程调试原理">远程调试原理</h3><p>前面说了远程调试器页面（inspector.html）能做的事与目标页面内嵌的devtools一样。为什么呢？下面结合实例讲。</p>
+<ol>
+<li><p>首先新打开一个Chrome作为调试器窗口。</p>
+<p>Chrome的远程调试功能默认关闭的，可以通过命令行创建一个chrome实例进行调试</p>
+<pre><code>sudo <span class="regexp">/Applications/G</span>oogle\ Chrome.app<span class="regexp">/Contents/M</span>acOS<span class="regexp">/Google\ Chrome --remote-debugging-port=9222</span>
+</code></pre><p>这里启动Chrome，Chrome会作为Server host一个web app, 这个web app可以通过<code>http://localhost:9222</code>访问</p>
+</li>
+<li><p>这时会弹出一个新Chrome窗口，地址栏输入<code>http://localhost:9222</code>能看到一个列表页面，列出了当前所有可调试的页面和插件。要查看这些可调式目标的详细参数也可以通过<code>http://localhost:9222/json</code>。</p>
+<p><img src="https://thumbnail0.baidupcs.com/thumbnail/2d228496b8860c23145abb5b26fc676a?fid=571110063-250528-743280518324589&amp;time=1540627200&amp;rt=sh&amp;sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-K5B6qgpG7BCo1Jz%2FTYH1yjc%2FUig%3D&amp;expires=8h&amp;chkv=0&amp;chkbd=0&amp;chkpc=&amp;dp-logid=6950656163287271480&amp;dp-callid=0&amp;size=c710_u400&amp;quality=100&amp;vuk=-&amp;ft=video" alt="Inspectable_Page"></p>
+</li>
+<li><p>点击Example Page，会导向到<code>http://localhost:9222/devtools/inspector.html?ws=localhost:9222/devtools/page/55A4F84F6A66845F72388146E3B8F986</code>。长得和内嵌devtools一样的html页面。</p>
+<p><img src="https://thumbnail0.baidupcs.com/thumbnail/d89f504636bd947233a21cc8cee7882c?fid=571110063-250528-494985038549952&amp;time=1540627200&amp;rt=sh&amp;sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-e9tSsi61zmg8q%2FO8W9FkPtyR374%3D&amp;expires=8h&amp;chkv=0&amp;chkbd=0&amp;chkpc=&amp;dp-logid=6950716047534410240&amp;dp-callid=0&amp;size=c710_u400&amp;quality=100&amp;vuk=-&amp;ft=video" alt="inspector.html"></p>
+<p><code>inspector.html</code>和Chrome host之间通过webSocket建立连接，这个websocket地址就是url中ws参数的值。其中<code>55A4F84F6A66845F72388146E3B8F986</code>是page id，每个页面都有一个唯一的page id，chrome就是通过这个id确定哪个是目标页面。页面和chrome 内核之间就是通过这个连接交换数据的。chrome调试器实例和目标页面实例之间是进程通信，所以inspector.html可以通过chrome调试器实例加载目标页面的source文件，还可以操作目标页面，例如加断点、刷新、记录Network信息等。</p>
+</li>
+</ol>
+<h2 id="Devtools_的工作原理">Devtools 的工作原理</h2><p>上面讲的是Remote Debugger Protocal，那当我们在inpector.html上做各种操作时，devtools内部又做了什么的？ 因为inspector.html其实也是一个前端页面，所以我们可以<code>cmd</code> + <code>opt</code> + <code>j</code>调出内嵌的devtools来查看当前这个<code>inpector.html</code>, 以打断点为例来看看devtool都做了那些事：</p>
+<ol>
+<li><p>首先<code>cmd</code> + <code>opt</code> + <code>j</code>打开内置devtools，切换到Network面板，filter切换到<code>WS</code> tab，刷新页面，找到一条websocket连接。这就是<code>inspector.html</code>与chrome host之间建立的用来交换数据的ws连接。</p>
+<p><img src="https://thumbnail0.baidupcs.com/thumbnail/30da67c0cbf574f6ff4a1277351814d1?fid=571110063-250528-313632288517043&amp;time=1540627200&amp;rt=sh&amp;sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-2PeNILNSh96HqwcRtFBqNd8sv78%3D&amp;expires=8h&amp;chkv=0&amp;chkbd=0&amp;chkpc=&amp;dp-logid=6950992930618254344&amp;dp-callid=0&amp;size=c710_u400&amp;quality=100&amp;vuk=-&amp;ft=video" alt="emebed_devtools"></p>
+</li>
+<li><p>选择<code>Frames</code>可以看到这了ws连接向Chrome host发送了很多条数据，其中一条（上图灰色高亮）<code>{ id: 6, method: &quot;Debugger.enable&quot; }</code>。这一条请求实际上是告诉Chrome去激活当前调试器的Debugger模块，激活之后我们才能够在页面上开始对断点操作（如新增、删除，deactive等)</p>
+<p>这一步其实做了很多事情，有兴趣可以去看chrome V8 源码。我没有仔细看，大概就是会编译debugger script文件，里面定义了一些针对js断点操作的函数，如新增、删除、查找、但不调试等</p>
+</li>
+<li><p>在<code>inspector.html</code>里点击Sources下面的app.js，再来开内嵌devtools里面的ws连接，向Chrome发送了一条请求要求获取scriptId为61的内容，并且chrome响应了这条请求，返回了文件内容，同时展示在页面上。因为chrome在遇到script标签加载完js文件后就会让v8引擎去编译并执行。编译js时会对源码片段进行编号并保存，这样后续就可以通过scriptId找到对应的源码。</p>
+<p><img src="https://thumbnail0.baidupcs.com/thumbnail/81761e470117b742e7c6df5055328712?fid=571110063-250528-809651896979711&amp;time=1540627200&amp;rt=sh&amp;sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-P55d15Ud9yQXIdhkcW7d63P90yM%3D&amp;expires=8h&amp;chkv=0&amp;chkbd=0&amp;chkpc=&amp;dp-logid=6950975081609371546&amp;dp-callid=0&amp;size=c710_u400&amp;quality=100&amp;vuk=-&amp;ft=video" alt="getScriptSource"></p>
+</li>
+<li><p>在app.js某处新增一个断点，再看内嵌devtools，想chrome发送了一条请求setBreakpointByUrl，同时传递参数（params）告知断点设置在哪个位置，设置成功后会返回breakpointId，移除断点时这个这个值会作为<code>Debugger.removeBreakpoint</code>的参数传入告知chrome要移除的断点。</p>
+<p><img src="https://thumbnail0.baidupcs.com/thumbnail/7baf8deb8f6062e5b94c78f048983125?fid=571110063-250528-563615321435277&amp;time=1540627200&amp;rt=sh&amp;sign=FDTAER-DCb740ccc5511e5e8fedcff06b081203-Edz2QVESeDL9uIrLcksDEXeMJGA%3D&amp;expires=8h&amp;chkv=0&amp;chkbd=0&amp;chkpc=&amp;dp-logid=6950962053385607967&amp;dp-callid=0&amp;size=c710_u400&amp;quality=100&amp;vuk=-&amp;ft=video" alt="setBreakpointByUrl"></p>
+</li>
+<li><p>在<code>inspector.html</code>设置了断点，这时去目标页面（Example Page）刷新，发现页面执行到断点位置暂停了。这其实是因为我们设置断点时，v8内部将断点回调设置到了C++ Runtime的环境中，javascript的执行实际上被编译成机器码在内部按顺序执行的，执行到某行代码遇到断点就触发回调函数然后程序进入到暂停状态。虽然我们只在<code>inpector.html</code>中设置了断点，但C++ Runtime中的js是同一套，所以刷新Example Page仍然会遇到断点暂停。</p>
+</li>
+</ol>
+]]></content>
+    <summary type="html">
+    <![CDATA[<blockquote>
+<p>So many books, so little time. - Frank Zappa</p>
+</blockquote>
+<p>面试的时候被问到Chrome devtools的工作原理没答上来，之后专门学习了一下，写本文梳理下知识点。<br>]]>
+    
+    </summary>
+    
+      <category term="javascript" scheme="http://yoursite.com/tags/javascript/"/>
+    
+      <category term="tech" scheme="http://yoursite.com/tags/tech/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[high performace javascript overview]]></title>
