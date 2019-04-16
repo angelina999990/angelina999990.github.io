@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://yoursite.com/"/>
-  <updated>2018-10-27T09:01:33.000Z</updated>
+  <updated>2019-04-16T10:34:32.000Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -13,6 +13,90 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[浏览器存储]]></title>
+    <link href="http://yoursite.com/2019/04/16/%E6%B5%8F%E8%A7%88%E5%99%A8%E5%AD%98%E5%82%A8/"/>
+    <id>http://yoursite.com/2019/04/16/浏览器存储/</id>
+    <published>2019-04-16T10:30:53.000Z</published>
+    <updated>2019-04-16T10:34:32.000Z</updated>
+    <content type="html"><![CDATA[<p>本地存储相关的东西主要涉及到4个，Cookie, localStorage, sessionStorage, indexDB。简单列一张表哥来区分一下他们到分别。</p>
+<a id="more"></a>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">特性</th>
+<th style="text-align:center">Cookie</th>
+<th style="text-align:center">localStorage</th>
+<th style="text-align:center">sessionStorage</th>
+<th style="text-align:center">indexDB </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">管理</td>
+<td style="text-align:center">服务端设置，客户端修改和维护</td>
+<td style="text-align:center">客户端设置和维护</td>
+<td style="text-align:center">客户端设置和维护</td>
+<td style="text-align:center">客户端设置和维护</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left">生命周期</td>
+<td style="text-align:center">可以设置具体的失效日期</td>
+<td style="text-align:center">除非手动删除，否则一直有效</td>
+<td style="text-align:center">一个会话周期内有效，(关闭tab或浏览器都会导致失效)</td>
+<td style="text-align:center">除非手动删除，否则一直有效</td>
+</tr>
+<tr>
+<td style="text-align:left">是否共享</td>
+<td style="text-align:center">同源下的多个tab窗口之间可以共享</td>
+<td style="text-align:center">同源下的多个tab窗口之间可以共享</td>
+<td style="text-align:center">每个tab页面下都是一个新的sessionStorage</td>
+<td style="text-align:center">同源下的多个tab窗口之间可以共享</td>
+</tr>
+<tr>
+<td style="text-align:left">接口特性</td>
+<td style="text-align:center">同步</td>
+<td style="text-align:center">同步</td>
+<td style="text-align:center">同步</td>
+<td style="text-align:center">异步</td>
+</tr>
+<tr>
+<td style="text-align:left">容量</td>
+<td style="text-align:center">4kb</td>
+<td style="text-align:center">5MB</td>
+<td style="text-align:center">5MB</td>
+<td style="text-align:center">&gt; 250MB</td>
+</tr>
+<tr>
+<td style="text-align:left">服务端交互</td>
+<td style="text-align:center">每次请求都会最为header带给服务端</td>
+<td style="text-align:center">不会随请求发送</td>
+<td style="text-align:center">不会随请求发送</td>
+<td style="text-align:center">不会随请求发送</td>
+</tr>
+<tr>
+<td style="text-align:left">存储类型</td>
+<td style="text-align:center">只能存储字符串类型的值</td>
+<td style="text-align:center">只能存储字符串类型的值</td>
+<td style="text-align:center">只能存储字符串类型的值</td>
+<td style="text-align:center">可以存储各种类型的值</td>
+</tr>
+</tbody>
+</table>
+<h2 id="总结">总结</h2><p>Cookie 存储容量小，且可以通过http请求和服务端进行通信，所以cookie更多是用来维持状态，例如标识登录态，服务端拿到cookie解析当前状态再决定如何响应。<br>localStorage和sessionStorage 在功能和接口上大致相同，不同点在于他们的生命周期和作用域，localStorage是持久存储并且支持跨窗口访问，儿sessionStorage则只能被当前窗口访问，且窗口关闭即失效。相对于indexedDB，它们都可以做少量数据的本地存储方案。而indexDB则可考虑用来实现大量结构化数据的存储</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>本地存储相关的东西主要涉及到4个，Cookie, localStorage, sessionStorage, indexDB。简单列一张表哥来区分一下他们到分别。</p>]]>
+    
+    </summary>
+    
+      <category term="javascript" scheme="http://yoursite.com/tags/javascript/"/>
+    
+      <category term="tech" scheme="http://yoursite.com/tags/tech/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[Chrome devtools 工作原理]]></title>
